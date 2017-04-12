@@ -10,6 +10,7 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="1.*"/>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SQLite" Version="1.*"/>
+    <PackageReference Include="FluentAssertions" Version="4.*"/>
 
     <ProjectReference Include="../BlackMaple.SeedOrders/BlackMaple.SeedOrders.csproj"/>
     <ProjectReference Include="../BlackMaple.CSVOrders/BlackMaple.CSVOrders.csproj"/>
