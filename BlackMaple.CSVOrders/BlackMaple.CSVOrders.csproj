@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>BlackMaple.CSVOrders</PackageId>
+    <AssemblyName>BlackMaple.CSVOrders</AssemblyName>
+    <VersionPrefix>0.0.1</VersionPrefix>
+
+    <Title>SeedTactics OrderLink - CSV Order Plugin</Title>
+    <Company>Black Maple Software, LLC</Company>
+    <Product>SeedTactics</Product>
+    <Copyright>Black Maple Software, LLC</Copyright>
+
+    <TargetFrameworks>netstandard1.6;net35</TargetFrameworks>
+    <OutputType>Library</OutputType>
+    <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CsvHelper" Version="2.*"/>
+    <ProjectReference Include="../BlackMaple.SeedOrders/BlackMaple.SeedOrders.csproj" />
+  </ItemGroup>
+
+</Project>

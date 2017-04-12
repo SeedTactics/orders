@@ -1,0 +1,210 @@
+using System;
+using System.IO;
+using System.Collections.Generic;
+using System.Linq;
+using BlackMaple.SeedOrders;
+
+namespace BlackMaple.CSVOrders
+{
+    ///<summary>
+    ///  Implement management of orders via CSV files for simpler integration into ERP systems
+    ///</summary>
+    public class WorkorderCSV : IWorkorderDatabase
+    {
+        public string CSVBasePath { get; set; } = "";
+
+        public const string FilledWorkordersPath = "filled-workorders";
+
+        private class UnscheduledCsvRow
+        {
+            public string Id;
+            public int Priority;
+            public DateTime DueDate;
+            public string Part;
+            public int Quantity;
+        }
+
+        private void CreateEmptyBookingFile(string file)
+        {
+            using (var f = File.OpenWrite(file))
+            {
+                using (var s = new StreamWriter(f))
+                {
+                    var csv = new CsvHelper.CsvWriter(s);
+                    csv.WriteHeader<UnscheduledCsvRow>();
+                }
+            }
+        }
+
+        private Dictionary<string, Workorder> LoadUnfilledWorkordersMap()
+        {
+            var path = Path.Combine(CSVBasePath, "unscheduled-workorders.csv");
+            var workorderMap = new Dictionary<string, Workorder>();
+            if (!File.Exists(path))
+            {
+                CreateEmptyBookingFile(path);
+                return workorderMap;
+            }
+
+            using (var f = File.OpenRead(path))
+            {
+                var csv = new CsvHelper.CsvReader(new StreamReader(f));
+
+                foreach (var row in csv.GetRecords<UnscheduledCsvRow>())
+                {
+                    Workorder work;
+                    if (workorderMap.ContainsKey(row.Id))
+                    {
+                        work = workorderMap[row.Id];
+                    }
+                    else
+                    {
+                        work = new Workorder
+                        {
+                            WorkorderId = row.Id,
+                            Priority = row.Priority,
+                            DueDate = row.DueDate,
+                            Parts = new List<WorkorderDemand>()
+                        };
+                        workorderMap.Add(row.Id, work);
+                    }
+                    work.Parts.Add(new WorkorderDemand
+                    {
+                        WorkorderId = row.Id,
+                        Part = row.Part,
+                        Quantity = row.Quantity
+                    });
+                }
+            }
+
+            foreach (var id in workorderMap.Keys.ToList())
+            {
+                var f = Path.Combine(CSVBasePath, FilledWorkordersPath, id + ".csv");
+                if (File.Exists(f))
+                {
+                    workorderMap.Remove(id);
+                }
+            }
+            return workorderMap;
+        }
+
+        public IEnumerable<Workorder> LoadUnfilledWorkorders()
+        {
+            return LoadUnfilledWorkordersMap().Values;
+        }
+
+        public LastFilledWorkorder LoadLastFilledWorkorder()
+        {
+            var lastFile = Path.Combine(CSVBasePath, "last-filled-workorder.txt");
+            if (File.Exists(lastFile))
+            {
+                var lines = File.ReadAllLines(lastFile);
+                return new LastFilledWorkorder
+                {
+                    WorkorderId = lines[0],
+                    FilledUTC = DateTime.ParseExact(lines[1], "yyyy-MM-ddTHH:mm:ssZ", null)
+                };
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public IEnumerable<Workorder> LoadUnfilledWorkorders(string part)
+        {
+            return LoadUnfilledWorkorders().Where(w => w.Parts.Any(p => p.Part == part));
+        }
+
+        public void MarkWorkorderAsFilled(string workorderId,
+                                          DateTime filledUTC,
+                                          IEnumerable<string> serials,
+                                          IDictionary<string, TimeSpan> actualTime,
+                                          IDictionary<string, TimeSpan> plannedTime)
+        {
+            var workorders = LoadUnfilledWorkordersMap();
+            if (!workorders.ContainsKey(workorderId)) return;
+            var work = workorders[workorderId];
+            var now = DateTime.UtcNow;
+
+            using (var f = File.OpenWrite(Path.Combine(CSVBasePath, FilledWorkordersPath, workorderId + ".csv")))
+            {
+                using (var stream = new StreamWriter(f))
+                {
+                    var csv = new CsvHelper.CsvWriter(stream);
+                    csv.WriteField("CompletedTimeUTC");
+                    csv.WriteField("ID");
+                    csv.WriteField("Part");
+                    csv.WriteField("Quantity");
+
+                    var actualKeys = actualTime.Keys.ToList();
+                    foreach (var k in actualKeys)
+                    {
+                        csv.WriteField("Actual " + k + " (minutes)");
+                    }
+                    var plannedKeys = plannedTime.Keys.ToList();
+                    foreach (var k in plannedKeys)
+                    {
+                        csv.WriteField("Planned " + k + " (minutes)");
+                    }
+                    csv.NextRecord();
+
+
+                    csv.WriteField(now);
+                    csv.WriteField(workorderId);
+
+                    string parts = "";
+                    string qtys = "";
+                    foreach (var p in work.Parts)
+                    {
+                        if (parts == "")
+                        {
+                            parts = p.Part;
+                            qtys = p.Quantity.ToString();
+                        }
+                        else
+                        {
+                            parts += ";" + p.Part;
+                            qtys += ";" + p.Quantity.ToString();
+                        }
+                    }
+                    csv.WriteField(now);
+                    csv.WriteField(workorderId);
+                    csv.WriteField(parts);
+                    csv.WriteField(qtys);
+
+                    foreach (var k in actualKeys)
+                    {
+                        csv.WriteField(actualTime[k].TotalMinutes);
+                    }
+                    foreach (var k in plannedKeys)
+                    {
+                        csv.WriteField(plannedTime[k].TotalMinutes);
+                    }
+                    csv.NextRecord();
+                }
+            }
+
+            using (var f = File.Open(Path.Combine(CSVBasePath, "last-filled-workorder.txt"), FileMode.Create))
+            {
+                using (var s = new StreamWriter(f))
+                {
+                    s.WriteLine(workorderId);
+                    s.WriteLine(filledUTC.ToString("yyyy-MM-ddTHH:mm:ssZ"));
+                    s.Flush();
+                }
+                f.Flush(true);
+            }
+        }
+
+        public IEnumerable<FilledWorkorder> LoadFilledWorkordersByFilledDate(DateTime startUTC, DateTime endUTC)
+        {
+            return new FilledWorkorder[] { };
+        }
+
+        public IEnumerable<FilledWorkorder> LoadFilledWorkordersByDueDate(DateTime startUTC, DateTime endUTC)
+        {
+            return new FilledWorkorder[] { };
+        }
+    }
+}
