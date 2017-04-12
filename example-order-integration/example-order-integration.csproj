@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>ExampleSeedTacticsOrders</PackageId>
+    <AssemblyName>ExampleSeedTacticsOrders</AssemblyName>
+    <VersionPrefix>0.0.1</VersionPrefix>
+
+    <Title>OrderLink Integration Example</Title>
+    <Company>Black Maple Software, LLC</Company>
+    <Product>SeedTactics</Product>
+    <Copyright>Black Maple Software, LLC</Copyright>
+
+    <TargetFrameworks>netstandard1.6</TargetFrameworks>
+    <OutputType>Library</OutputType>
+    <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="1.*"/>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SQLite" Version="1.*"/>
+
+    <ProjectReference Include="../BlackMaple.SeedOrders/BlackMaple.SeedOrders.csproj" />
+  </ItemGroup>
+
+</Project>
