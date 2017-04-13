@@ -17,11 +17,11 @@ namespace BlackMaple.CSVOrders
 
         private class UnscheduledCsvRow
         {
-            public string Id;
-            public int Priority;
-            public DateTime DueDate;
-            public string Part;
-            public int Quantity;
+            public string Id { get; set; }
+            public int Priority { get; set; }
+            public DateTime DueDate { get; set; }
+            public string Part { get; set; }
+            public int Quantity { get; set; }
         }
 
         private void CreateEmptyWorkorderFile(string file)
@@ -120,6 +120,11 @@ namespace BlackMaple.CSVOrders
             var work = workorders[workorderId];
             var now = DateTime.UtcNow;
 
+            if (!Directory.Exists(Path.Combine(CSVBasePath, FilledWorkordersPath)))
+            {
+                Directory.CreateDirectory(Path.Combine(CSVBasePath, FilledWorkordersPath));
+            }
+
             using (var f = File.OpenWrite(Path.Combine(CSVBasePath, FilledWorkordersPath, workorderId + ".csv")))
             {
                 using (var stream = new StreamWriter(f))
@@ -142,10 +147,6 @@ namespace BlackMaple.CSVOrders
                     }
                     csv.NextRecord();
 
-
-                    csv.WriteField(now);
-                    csv.WriteField(workorderId);
-
                     string parts = "";
                     string qtys = "";
                     foreach (var p in work.Parts)
@@ -161,7 +162,7 @@ namespace BlackMaple.CSVOrders
                             qtys += ";" + p.Quantity.ToString();
                         }
                     }
-                    csv.WriteField(now);
+                    csv.WriteField(now.ToString("yyyy-MM-ddTHH:mm:ssZ"));
                     csv.WriteField(workorderId);
                     csv.WriteField(parts);
                     csv.WriteField(qtys);
@@ -184,8 +185,8 @@ namespace BlackMaple.CSVOrders
                 {
                     s.WriteLine(workorderId);
                     s.Flush();
+                    f.Flush(true);
                 }
-                f.Flush(true);
             }
         }
 

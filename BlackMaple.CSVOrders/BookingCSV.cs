@@ -16,19 +16,19 @@ namespace BlackMaple.CSVOrders
 
         private class UnscheduledCsvRow
         {
-            public string Id;
-            public int Priority;
-            public DateTime DueDate;
-            public string Part;
-            public int Quantity;
+            public string Id { get; set; }
+            public int Priority { get; set; }
+            public DateTime DueDate { get; set; }
+            public string Part { get; set; }
+            public int Quantity { get; set; }
         }
 
         private class ScheduledBookingCsvRow
         {
-            public DateTime ScheduledTimeUTC;
-            public string Part;
-            public int Quantity;
-            public string ScheduleId;
+            public DateTime ScheduledTimeUTC { get; set; }
+            public string Part { get; set; }
+            public int Quantity { get; set; }
+            public string ScheduleId { get; set; }
         }
 
         private void CreateEmptyBookingFile(string file)
@@ -47,7 +47,8 @@ namespace BlackMaple.CSVOrders
         {
             var bookingMap = new Dictionary<string, Booking>();
             var pth = Path.Combine(CSVBasePath, "unscheduled-bookings.csv");
-            if (!File.Exists(pth)) {
+            if (!File.Exists(pth))
+            {
                 CreateEmptyBookingFile(pth);
                 return bookingMap;
             }
@@ -154,8 +155,8 @@ namespace BlackMaple.CSVOrders
                     var csv = new CsvHelper.CsvWriter(s);
                     csv.WriteRecords(parts);
                     s.Flush();
+                    f.Flush(true);
                 }
-                f.Flush(true);
             }
         }
 
@@ -197,14 +198,17 @@ namespace BlackMaple.CSVOrders
                         }
 
                         stream.Flush();
+                        f.Flush(true);
                     }
-                    f.Flush(true);
                 }
             }
         }
 
         public void CreateSchedule(string scheduleId, DateTime scheduledTimeUTC, TimeSpan scheduledHorizon, IEnumerable<string> bookingIds, IEnumerable<DownloadedPart> downloadedParts, IEnumerable<ScheduledPartWithoutBooking> scheduledParts)
         {
+            if (!Directory.Exists(Path.Combine(CSVBasePath, ScheduledBookingsPath)))
+                Directory.CreateDirectory(Path.Combine(CSVBasePath, ScheduledBookingsPath));
+
             WriteScheduledBookings(scheduleId, scheduledTimeUTC, bookingIds);
 
             var schTempFile = Path.Combine(CSVBasePath, "scheduled-parts-temp-" + scheduleId + ".csv");
@@ -219,8 +223,8 @@ namespace BlackMaple.CSVOrders
                 {
                     s.WriteLine(scheduleId);
                     s.Flush();
+                    f.Flush(true);
                 }
-                f.Flush(true);
             }
 
             if (File.Exists(schFile)) File.Delete(schFile);

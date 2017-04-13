@@ -31,10 +31,10 @@ namespace tests
                     Priority = 100,
                     DueDate = new DateTime(2017, 01, 01),
                     ScheduleId = null,
-                    Parts = new List<BookingDemand>(new BookingDemand[] {
+                    Parts = new List<BookingDemand> {
                         new BookingDemand { BookingId = "booking1", Part = "part1", Quantity = 44},
                         new BookingDemand { BookingId = "booking1", Part = "part2", Quantity = 66}
-                     })
+                     }
                 });
                 initialBookings.Add(new Booking
                 {
@@ -42,10 +42,10 @@ namespace tests
                     Priority = 200,
                     DueDate = new DateTime(2017, 02, 02),
                     ScheduleId = null,
-                    Parts = new List<BookingDemand>(new BookingDemand[] {
+                    Parts = new List<BookingDemand> {
                         new BookingDemand { BookingId = "booking2", Part = "part1", Quantity = 55},
                         new BookingDemand { BookingId = "booking2", Part = "part2", Quantity = 77}
-                     })
+                     }
                 });
                 initialBookings.Add(new Booking
                 {
@@ -53,10 +53,10 @@ namespace tests
                     Priority = 300,
                     DueDate = new DateTime(2017, 03, 03),
                     ScheduleId = null,
-                    Parts = new List<BookingDemand>(new BookingDemand[] {
+                    Parts = new List<BookingDemand> {
                         new BookingDemand { BookingId = "booking3", Part = "part1", Quantity = 111},
                         new BookingDemand { BookingId = "booking3", Part = "part3", Quantity = 222}
-                     })
+                     }
                 });
 
                 foreach (var b in initialBookings) context.Bookings.Add(b);
