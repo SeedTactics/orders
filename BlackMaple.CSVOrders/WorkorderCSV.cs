@@ -24,7 +24,7 @@ namespace BlackMaple.CSVOrders
             public int Quantity;
         }
 
-        private void CreateEmptyBookingFile(string file)
+        private void CreateEmptyWorkorderFile(string file)
         {
             using (var f = File.OpenWrite(file))
             {
@@ -42,7 +42,7 @@ namespace BlackMaple.CSVOrders
             var workorderMap = new Dictionary<string, Workorder>();
             if (!File.Exists(path))
             {
-                CreateEmptyBookingFile(path);
+                CreateEmptyWorkorderFile(path);
                 return workorderMap;
             }
 
@@ -93,17 +93,12 @@ namespace BlackMaple.CSVOrders
             return LoadUnfilledWorkordersMap().Values;
         }
 
-        public LastFilledWorkorder LoadLastFilledWorkorder()
+        public string LoadLastFilledWorkorderId()
         {
             var lastFile = Path.Combine(CSVBasePath, "last-filled-workorder.txt");
             if (File.Exists(lastFile))
             {
-                var lines = File.ReadAllLines(lastFile);
-                return new LastFilledWorkorder
-                {
-                    WorkorderId = lines[0],
-                    FilledUTC = DateTime.ParseExact(lines[1], "yyyy-MM-ddTHH:mm:ssZ", null)
-                };
+                return File.ReadAllLines(lastFile)[0];
             }
             else
             {
@@ -118,9 +113,7 @@ namespace BlackMaple.CSVOrders
 
         public void MarkWorkorderAsFilled(string workorderId,
                                           DateTime filledUTC,
-                                          IEnumerable<string> serials,
-                                          IDictionary<string, TimeSpan> actualTime,
-                                          IDictionary<string, TimeSpan> plannedTime)
+                                          WorkorderResources resources)
         {
             var workorders = LoadUnfilledWorkordersMap();
             if (!workorders.ContainsKey(workorderId)) return;
@@ -137,12 +130,12 @@ namespace BlackMaple.CSVOrders
                     csv.WriteField("Part");
                     csv.WriteField("Quantity");
 
-                    var actualKeys = actualTime.Keys.ToList();
+                    var actualKeys = resources.ActualOperationTimes.Keys.ToList();
                     foreach (var k in actualKeys)
                     {
                         csv.WriteField("Actual " + k + " (minutes)");
                     }
-                    var plannedKeys = plannedTime.Keys.ToList();
+                    var plannedKeys = resources.PlannedOperationTimes.Keys.ToList();
                     foreach (var k in plannedKeys)
                     {
                         csv.WriteField("Planned " + k + " (minutes)");
@@ -175,11 +168,11 @@ namespace BlackMaple.CSVOrders
 
                     foreach (var k in actualKeys)
                     {
-                        csv.WriteField(actualTime[k].TotalMinutes);
+                        csv.WriteField(resources.ActualOperationTimes[k].TotalMinutes);
                     }
                     foreach (var k in plannedKeys)
                     {
-                        csv.WriteField(plannedTime[k].TotalMinutes);
+                        csv.WriteField(resources.PlannedOperationTimes[k].TotalMinutes);
                     }
                     csv.NextRecord();
                 }
@@ -190,21 +183,20 @@ namespace BlackMaple.CSVOrders
                 using (var s = new StreamWriter(f))
                 {
                     s.WriteLine(workorderId);
-                    s.WriteLine(filledUTC.ToString("yyyy-MM-ddTHH:mm:ssZ"));
                     s.Flush();
                 }
                 f.Flush(true);
             }
         }
 
-        public IEnumerable<FilledWorkorder> LoadFilledWorkordersByFilledDate(DateTime startUTC, DateTime endUTC)
+        public IEnumerable<FilledWorkorderAndResources> LoadFilledWorkordersByFilledDate(DateTime startUTC, DateTime endUTC)
         {
-            return new FilledWorkorder[] { };
+            return new FilledWorkorderAndResources[] { };
         }
 
-        public IEnumerable<FilledWorkorder> LoadFilledWorkordersByDueDate(DateTime startUTC, DateTime endUTC)
+        public IEnumerable<FilledWorkorderAndResources> LoadFilledWorkordersByDueDate(DateTime startUTC, DateTime endUTC)
         {
-            return new FilledWorkorder[] { };
+            return new FilledWorkorderAndResources[] { };
         }
     }
 }

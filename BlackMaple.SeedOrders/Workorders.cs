@@ -38,17 +38,23 @@ namespace BlackMaple.SeedOrders
         /// <summary>When workorders have the same <c>Priority</c>, the due date is used to determine which to fill first.</summary>
         public DateTime DueDate { get; set; }
 
+        /// <summary>The time in coordinated universal time (UTC) when the final part was assigned to this workorder</summary>
+        /// <remarks>
+        ///  <para>
+        ///    This value is null while the workorder is unfilled, and only gets set once the workorder is completed and no more
+        ///    parts should be assigned to it again.
+        ///  </para>
+        /// </remarks>
+        public DateTime? FilledUTC { get; set; }
+
         public List<WorkorderDemand> Parts { get; set; }
     }
 
     /// <summary>
-    ///   A <c>FilledWorkorder</c> summarizes the execution of the parts assigned to the workorder via the part serials.
+    ///   A <c>WorkorderResources</c> summarizes the execution of the parts assigned to the workorder.
     /// </summary>
-    public class FilledWorkorder : Workorder
+    public class WorkorderResources
     {
-        ///<summary>The time in coordinated universal time (UTC) that the final part was assigned to the workorder</summary>
-        public DateTime FilledUTC { get; set; }
-
         ///<summary>The serials of all parts assigned to this workorder</summary>
         public List<string> Serials { get; set; }
 
@@ -71,21 +77,19 @@ namespace BlackMaple.SeedOrders
         public Dictionary<string, TimeSpan> PlannedOperationTimes { get; set; }
     }
 
-    ///<summary>Contains the workorder with the largest FilledUTC of all workorders</summary>
+    ///<summary>Contains the workorder and the resources used by the workorder</summary>
     ///<remarks>
     ///  <para>
-    ///    This is used to determine which workorders have been copied into the ERP system.  Once the operator
-    ///    assigns the last part to a workorder and marks it filled, OrderLink records the workorder as filled
-    ///    internally.  OrderLink then attempts to call <c>MarkWorkorderAsFilled</c> from the plugin.  If there
-    ///    is an error, OrderLink will periodically attempt to recall <c>MarkWorkorderAsFilled</c> until the workorder
-    ///    appears in <c>LastFilledWorkorder</c>.
+    ///    This type is used only when returning data from querying existing workorders.  When loading,
+    ///    if not all resources are stored, that is OK.  Load only what has been stored.
     ///  </para>
     ///</remarks>
-    public class LastFilledWorkorder
+    public class FilledWorkorderAndResources
     {
-        public string WorkorderId { get; set; }
-        public DateTime FilledUTC { get; set; }
+        public Workorder Workorder;
+        public WorkorderResources Resources;
     }
+
 
     /// <summary>
     ///   The main interface to interact with workorders.
@@ -109,16 +113,23 @@ namespace BlackMaple.SeedOrders
         IEnumerable<Workorder> LoadUnfilledWorkorders(string part);
 
         /// <summary>Load the filled workorder with the largest FilledUTC</summary>
-        LastFilledWorkorder LoadLastFilledWorkorder();
+        /// <remarks>
+        ///  <para>
+        ///    This is used to determine which workorders have been copied into the ERP system.  Once the operator
+        ///    assigns the last part to a workorder and marks it filled, OrderLink records the workorder as filled
+        ///    internally.  OrderLink then attempts to call <c>MarkWorkorderAsFilled</c>.  If there
+        ///    is an error, OrderLink will periodically attempt to recall <c>MarkWorkorderAsFilled</c> until the workorder
+        ///    appears in <c>LoadLastFilledWorkorderId</c>.
+        ///  </para>
+        /// </remarks>
+        string LoadLastFilledWorkorderId();
 
         /// <summary>
         ///   Mark the given workorder as filled.
         /// </summary>
         void MarkWorkorderAsFilled( string workorderId,
                                     DateTime fillUTC,
-                                    IEnumerable<string> serials,
-                                    IDictionary<string, TimeSpan> actualTime,
-                                    IDictionary<string, TimeSpan> plannedTime
+                                    WorkorderResources resources
                                   );
 
         /// <summary>
@@ -131,7 +142,7 @@ namespace BlackMaple.SeedOrders
         ///     stored, that is OK.  Load only what is stored.
         ///   </para>
         /// </remarks>
-        IEnumerable<FilledWorkorder> LoadFilledWorkordersByFilledDate(DateTime startUTC, DateTime endUTC);
+        IEnumerable<FilledWorkorderAndResources> LoadFilledWorkordersByFilledDate(DateTime startUTC, DateTime endUTC);
 
         /// <summary>
         ///   Load history of all filled workorders with due date between the given start and end time.
@@ -143,7 +154,7 @@ namespace BlackMaple.SeedOrders
         ///     stored, that is OK.  Load only what is stored.
         ///   </para>
         /// </remarks>
-        IEnumerable<FilledWorkorder> LoadFilledWorkordersByDueDate(DateTime startUTC, DateTime endUTC);
+        IEnumerable<FilledWorkorderAndResources> LoadFilledWorkordersByDueDate(DateTime startD, DateTime endD);
     }
 
 }

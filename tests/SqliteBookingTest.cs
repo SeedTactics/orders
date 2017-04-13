@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore;
 using FluentAssertions;
 using Xunit;
 using BlackMaple.SeedOrders;
