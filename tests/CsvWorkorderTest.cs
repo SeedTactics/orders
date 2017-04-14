@@ -55,12 +55,13 @@ namespace tests
             {
                 using (var s = new StreamWriter(f))
                 {
-                    s.WriteLine("Id,Priority,DueDate,Part,Quantity");
+                    s.WriteLine("Id,DueDate,Priority,Part,Quantity");
                     foreach (var w in initialWorkorders)
                     {
                         foreach (var p in w.Parts) {
-                            s.WriteLine(w.WorkorderId + "," + w.Priority.ToString() + "," 
+                            s.WriteLine(w.WorkorderId + "," 
                               + w.DueDate.ToString("yyyy-MM-dd") + ","
+                              + w.Priority.ToString() + ","
                               + p.Part + "," + p.Quantity.ToString());
                         }
                     }

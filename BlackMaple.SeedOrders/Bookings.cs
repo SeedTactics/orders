@@ -30,15 +30,16 @@ namespace BlackMaple.SeedOrders
         /// <summary>The unique identifier for a booking</summary>
         public string BookingId { get; set; }
 
-        /// <summary>Bookings with larger integers are produced sooner (larger integers are higher priority).</summary>
-        public int Priority { get; set; }
-
-        /// <summary>When bookings have the same <c>Priority</c>, the due date is used to determine which to produce first.</summary>
+        /// <summary>The due date is used as the primary means to determine which booking to produce first.</summary>
         public DateTime DueDate { get; set; }
+
+        /// <summary>Bookings with the same due date are sorted by priority (larger integers are higher priority).</summary>
+        public int Priority { get; set; }
 
         ///<summary>The schedule id if this booking has been scheduled.  If the booking has not yet been scheduled, this is null</summary>
         public string ScheduleId { get; set; }
 
+        ///<summary>The parts to produce for this booking</summary>
         public List<BookingDemand> Parts { get; set; }
     }
 
@@ -65,9 +66,14 @@ namespace BlackMaple.SeedOrders
     ///<remarks>
     ///   <para>
     ///   A schedule consists of the bookings completed by this schedule and the part quantities actually downloaded
-    ///   into the machine controller.  Sometimes a <c>Booking</c> can't be scheduled all at once.  In that case, the <c>Booking</c>
-    ///   itself will not be included in the <c>Schedule</c>.  Instead, some parts from the <c>Booking</c> will be included in the
-    ///   downloaded parts and also recorded in a <c>ScheduledPartWithoutBooking</c>.
+    ///   into the machine controller.
+    ///   </para>
+    ///   <para>
+    ///   Sometimes a <c>Booking</c> can't be scheduled all at once.  When this is the case, the <c>Booking</c>
+    ///   will not be included in the first <c>Schedule</c> so the booking will be left in the unscheduled state.
+    ///   Instead, some parts from the <c>Booking</c> will be included in the downloaded parts and also recorded in
+    ///   a <c>ScheduledPartWithoutBooking</c>.  When the next schedule is generated, the remaining parts will be
+    ///   produced and the booking will be marked scheduled at that time.
     ///   </para>
     ///   <para>
     ///   For example, if there is a booking for 100 of part ABC but there is only capacity for 40, the booking will be left unscheduled,
@@ -108,9 +114,12 @@ namespace BlackMaple.SeedOrders
         public int Quantity { get; set; }
     }
 
-    /// <summary>
-    ///   Contains information about unscheduled bookings, scheduled parts, and pending transactions.
-    /// </summary>
+    /// <summary>Contains information about unscheduled bookings, scheduled parts, and pending transactions.</summary>
+    /// <remarks>
+    ///  <para>
+    ///    This type is used only to return multiple data at once about unscheduled bookings
+    ///  </para>
+    /// </remarks>
     public struct UnscheduledStatus
     {
         /// <summary>
@@ -154,7 +163,7 @@ namespace BlackMaple.SeedOrders
         ///     should be stored.
         ///   </para>
         /// </remarks>
-        void CreateSchedule(string scheduleId
+        void CreateSchedule( string scheduleId
                            , DateTime scheduledTimeUTC
                            , TimeSpan scheduledHorizon
                            , IEnumerable<string> bookingIds

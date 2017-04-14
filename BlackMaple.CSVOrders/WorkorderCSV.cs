@@ -18,8 +18,8 @@ namespace BlackMaple.CSVOrders
         private class UnscheduledCsvRow
         {
             public string Id { get; set; }
-            public int Priority { get; set; }
             public DateTime DueDate { get; set; }
+            public int Priority { get; set; }
             public string Part { get; set; }
             public int Quantity { get; set; }
         }

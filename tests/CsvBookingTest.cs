@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.IO;
 using FluentAssertions;
 using Xunit;
@@ -63,13 +62,14 @@ namespace tests
             {
                 using (var s = new StreamWriter(f))
                 {
-                    s.WriteLine("Id,Priority,DueDate,Part,Quantity");
+                    s.WriteLine("Id,DueDate,Priority,Part,Quantity");
                     foreach (var b in initialBookings)
                     {
                         foreach (var p in b.Parts)
                         {
-                            s.WriteLine(b.BookingId + "," + b.Priority.ToString() + ","
+                            s.WriteLine(b.BookingId + ","
                               + b.DueDate.ToString("yyyy-MM-dd") + ","
+                              + b.Priority.ToString() + ","
                               + p.Part + "," + p.Quantity.ToString());
                         }
                     }
