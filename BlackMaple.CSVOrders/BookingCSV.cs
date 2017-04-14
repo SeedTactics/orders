@@ -11,7 +11,7 @@ namespace BlackMaple.CSVOrders
     ///</summary>
     public class CSVBookings : IBookingDatabase
     {
-        public string CSVBasePath { get; set; } = "";
+        public string CSVBasePath { get; set; } = ".";
         public string ScheduledBookingsPath { get; set; } = "scheduled-bookings";
 
         private class UnscheduledCsvRow
@@ -100,39 +100,35 @@ namespace BlackMaple.CSVOrders
 
         private IEnumerable<ScheduledPartWithoutBooking> LoadScheduledParts()
         {
-            var schFile = Path.Combine(CSVBasePath, "schedulued-parts.csv");
+            var schFile = Path.Combine(CSVBasePath, "scheduled-parts.csv");
             if (!File.Exists(schFile)) return new ScheduledPartWithoutBooking[] { };
 
             using (var f = File.OpenRead(schFile))
             {
                 var csv = new CsvHelper.CsvReader(new StreamReader(f));
-                return csv.GetRecords<ScheduledPartWithoutBooking>();
+                return csv.GetRecords<ScheduledPartWithoutBooking>().ToArray();
             }
         }
 
         private string LastSchedule()
         {
-            var lastSchFile = Directory.GetFiles(Path.Combine(CSVBasePath, "scheduled-booking-temp*.csv"))
-                     .OrderByDescending(x => x)
-                     .FirstOrDefault();
-
+            //load last schedule id
             string lastFile = Path.Combine(CSVBasePath, "last-schedule-id.txt");
             string lastId = "";
-            if (File.Exists(lastSchFile))
+            if (File.Exists(lastFile))
             {
                 lastId = File.ReadAllLines(lastFile)[0];
             }
 
-            if (!string.IsNullOrEmpty(lastSchFile))
+            //check for bad copy from scheduled-booking-temp-lastId.csv
+            var tempFile = Path.Combine(CSVBasePath, "scheduled-parts-temp-" + lastId + ".csv");
+            if (File.Exists(tempFile))
             {
-                //check for bad copy
-                if (Path.GetFileName(lastFile) == "scheduled-parts-temp-" + lastId + ".csv")
-                {
-                    var schPartFile = Path.Combine(CSVBasePath, "scheduled-parts.csv");
-                    if (File.Exists(schPartFile)) File.Delete(schPartFile);
-                    File.Move(lastFile, schPartFile);
-                }
+                var schPartFile = Path.Combine(CSVBasePath, "scheduled-parts.csv");
+                if (File.Exists(schPartFile)) File.Delete(schPartFile);
+                File.Move(tempFile, schPartFile);
             }
+            
             return lastId;
         }
 

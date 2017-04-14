@@ -11,7 +11,7 @@ namespace BlackMaple.CSVOrders
     ///</summary>
     public class WorkorderCSV : IWorkorderDatabase
     {
-        public string CSVBasePath { get; set; } = "";
+        public string CSVBasePath { get; set; } = ".";
 
         public const string FilledWorkordersPath = "filled-workorders";
 
