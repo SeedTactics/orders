@@ -45,8 +45,6 @@ namespace ExampleOrderIntegration
                 ret.ScheduledParts = context.ExtraParts
                     .AsNoTracking()
                     .ToList();
-                ret.MaxScheduleId = context.Schedules
-                    .Max(s => s.ScheduleId);
                 return ret;
             }
         }

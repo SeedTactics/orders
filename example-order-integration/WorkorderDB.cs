@@ -54,20 +54,6 @@ namespace ExampleOrderIntegration
             }
         }
 
-        public string LoadLastFilledWorkorderId()
-        {
-            using (var context = new WorkorderContext())
-            {
-                return context.Workorders
-                  .Include(w => w.Parts)
-                  .Where(w => w.FilledUTC != null)
-                  .OrderBy(w => w.FilledUTC)
-                  .AsNoTracking()
-                  .Select(w => w.WorkorderId)
-                  .LastOrDefault();
-            }
-        }
-
         public void MarkWorkorderAsFilled(string workorderId, DateTime fillUTC, WorkorderResources resources)
         {
             using (var context = new WorkorderContext())

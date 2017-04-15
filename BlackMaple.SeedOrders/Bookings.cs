@@ -164,11 +164,6 @@ namespace BlackMaple.SeedOrders
         ///   All scheduled parts in the system.
         /// </summary>
         public IEnumerable<ScheduledPartWithoutBooking> ScheduledParts;
-
-        /// <summary>
-        ///   Maximum ScheduleId (sorted lexicographically) over all schedules.
-        /// </summary>
-        public string MaxScheduleId;
     }
 
     /// <summary>

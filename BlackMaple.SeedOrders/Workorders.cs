@@ -146,18 +146,6 @@ namespace BlackMaple.SeedOrders
         /// </summary>
         IEnumerable<Workorder> LoadUnfilledWorkorders(string part);
 
-        /// <summary>Load the filled workorder id with the largest FilledUTC</summary>
-        /// <remarks>
-        ///  <para>
-        ///    This is used to determine which workorders have been copied into the ERP system.  Once the operator
-        ///    assigns the last part to a workorder and marks it filled, SeedTactics records the workorder as filled
-        ///    internally.  SeedTactics then attempts to call <c>MarkWorkorderAsFilled</c>.  If there
-        ///    is an error, SeedTactics will periodically attempt to recall <c>MarkWorkorderAsFilled</c> until the workorder
-        ///    appears in <c>LoadLastFilledWorkorderId</c>.
-        ///  </para>
-        /// </remarks>
-        string LoadLastFilledWorkorderId();
-
         /// <summary>
         ///   Mark the given workorder as filled.
         /// </summary>

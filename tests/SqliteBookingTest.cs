@@ -119,7 +119,6 @@ namespace tests
             var status = booking.LoadUnscheduledStatus();
             status.ScheduledParts.ShouldAllBeEquivalentTo(initialSchParts);
             status.UnscheduledBookings.ShouldAllBeEquivalentTo(initialBookings);
-            Assert.Null(status.MaxScheduleId);
         }
 
         [Fact]
@@ -160,7 +159,6 @@ namespace tests
 
             //check status
             var status = booking.LoadUnscheduledStatus();
-            Assert.Equal("12345", status.MaxScheduleId);
             status.ScheduledParts.ShouldAllBeEquivalentTo(schParts);
             status.UnscheduledBookings.ShouldAllBeEquivalentTo(
                 new Booking[] { initialBookings[2] }

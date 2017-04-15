@@ -134,6 +134,15 @@ namespace BlackMaple.CSVOrders
         private IEnumerable<ScheduledPartWithoutBooking> LoadScheduledParts()
         {
             var schFile = Path.Combine(CSVBasePath, "scheduled-parts.csv");
+
+            var tempSchFile = Directory.GetFiles(CSVBasePath, "scheduled-parts-temp-*.csv")
+                .OrderBy(x => x)
+                .LastOrDefault();
+            if (!string.IsNullOrEmpty(tempSchFile)) {
+                if (File.Exists(schFile)) File.Delete(schFile);
+                File.Move(tempSchFile, schFile);
+            }
+
             if (!File.Exists(schFile)) return new ScheduledPartWithoutBooking[] { };
 
             using (var f = File.OpenRead(schFile))
@@ -143,34 +152,10 @@ namespace BlackMaple.CSVOrders
             }
         }
 
-        private string LastSchedule()
-        {
-            //load last schedule id
-            string lastFile = Path.Combine(CSVBasePath, "last-schedule-id.txt");
-            string lastId = "";
-            if (File.Exists(lastFile))
-            {
-                lastId = File.ReadAllLines(lastFile)[0];
-            }
-
-            //check for bad copy from scheduled-booking-temp-lastId.csv
-            var tempFile = Path.Combine(CSVBasePath, "scheduled-parts-temp-" + lastId + ".csv");
-            if (File.Exists(tempFile))
-            {
-                var schPartFile = Path.Combine(CSVBasePath, "scheduled-parts.csv");
-                if (File.Exists(schPartFile)) File.Delete(schPartFile);
-                File.Move(tempFile, schPartFile);
-            }
-
-            return lastId;
-        }
-
         public UnscheduledStatus LoadUnscheduledStatus()
         {
             var ret = default(UnscheduledStatus);
             ret.UnscheduledBookings = LoadUnscheduledBookings().Values;
-            //call LastSchedule() before LoadScheduledParts() because the scheduled parts file might need to be updated
-            ret.MaxScheduleId = LastSchedule();
             ret.ScheduledParts = LoadScheduledParts();
             return ret;
         }
@@ -238,23 +223,11 @@ namespace BlackMaple.CSVOrders
             if (!Directory.Exists(Path.Combine(CSVBasePath, ScheduledBookingsPath)))
                 Directory.CreateDirectory(Path.Combine(CSVBasePath, ScheduledBookingsPath));
 
-            WriteScheduledBookings(scheduleId, scheduledTimeUTC, bookingIds);
-
             var schTempFile = Path.Combine(CSVBasePath, "scheduled-parts-temp-" + scheduleId + ".csv");
             var schFile = Path.Combine(CSVBasePath, "scheduled-parts.csv");
-            var lastSchFile = Path.Combine(CSVBasePath, "last-schedule-id.txt");
-
             WriteScheduledParts(schTempFile, scheduledParts);
 
-            using (var f = File.Open(lastSchFile, FileMode.Create))
-            {
-                using (var s = new StreamWriter(f))
-                {
-                    s.WriteLine(scheduleId);
-                    s.Flush();
-                    f.Flush(true);
-                }
-            }
+            WriteScheduledBookings(scheduleId, scheduledTimeUTC, bookingIds);
 
             if (File.Exists(schFile)) File.Delete(schFile);
             File.Move(schTempFile, schFile);

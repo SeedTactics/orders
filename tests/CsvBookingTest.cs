@@ -49,8 +49,6 @@ namespace tests
         {
             if (Directory.Exists("scheduled-bookings"))
                 Directory.Delete("scheduled-bookings", true);
-            if (File.Exists("last-schedule-id.txt"))
-                File.Delete("last-schedule-id.txt");
             foreach (var f in Directory.GetFiles(".", "scheduled-parts-temp*.csv")) {
                 File.Delete(f);
             }
@@ -142,7 +140,6 @@ namespace tests
             var status = booking.LoadUnscheduledStatus();
             status.ScheduledParts.ShouldAllBeEquivalentTo(initialSchParts);
             status.UnscheduledBookings.ShouldAllBeEquivalentTo(initialBookings);
-            Assert.Equal("", status.MaxScheduleId);
         }
 
         [Fact]
@@ -169,7 +166,6 @@ namespace tests
 
             //check status
             var status = booking.LoadUnscheduledStatus();
-            Assert.Equal("12345", status.MaxScheduleId);
             status.ScheduledParts.ShouldAllBeEquivalentTo(schParts);
             status.UnscheduledBookings.ShouldAllBeEquivalentTo(
                 new Booking[] { initialBookings[2] }
@@ -193,7 +189,6 @@ namespace tests
         [Fact]
         public void RecoverBadFileCopy()
         {
-            File.WriteAllText("last-schedule-id.txt", "abc");
             File.WriteAllLines("scheduled-parts-temp-abc.csv", new string[]{
                 "Part,Quantity",
                 "mypart,12",
@@ -207,7 +202,6 @@ namespace tests
                 new ScheduledPartWithoutBooking { Part = "otherpart", Quantity = 17}
             });
             status.UnscheduledBookings.ShouldAllBeEquivalentTo(initialBookings);
-            Assert.Equal("abc", status.MaxScheduleId);
         }
     }
 }

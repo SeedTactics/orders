@@ -102,8 +102,6 @@ namespace tests
 
             workDB.LoadUnfilledWorkorders("part3")
               .ShouldAllBeEquivalentTo(new Workorder[] {initialWorkorders[2]});
-
-            Assert.Null(workDB.LoadLastFilledWorkorderId());
         }
 
         [Fact]
@@ -119,7 +117,6 @@ namespace tests
               .ShouldAllBeEquivalentTo(initialWorkorders.GetRange(1, 2));
             workDB.LoadUnfilledWorkorders("part3")
               .ShouldAllBeEquivalentTo(new Workorder[] {initialWorkorders[2]});
-            Assert.Equal("work1", workDB.LoadLastFilledWorkorderId());
 
             var filled = new FilledWorkorderAndResources
               { Workorder = initialWorkorders[0]};

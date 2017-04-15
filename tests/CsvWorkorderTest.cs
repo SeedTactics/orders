@@ -49,8 +49,6 @@ namespace tests
         {
             if (Directory.Exists("filled-workorders"))
                 Directory.Delete("filled-workorders", true);
-            if (File.Exists("last-filled-workorder.txt"))
-                File.Delete("last-filled-workorder.txt");
             initialWorkorders = new List<Workorder>();
 
             initialWorkorders.Add(new Workorder
@@ -112,8 +110,6 @@ namespace tests
 
             workDB.LoadUnfilledWorkorders("part3")
               .ShouldAllBeEquivalentTo(new Workorder[] { initialWorkorders[2] });
-
-            Assert.Null(workDB.LoadLastFilledWorkorderId());
         }
 
         [Fact]
@@ -140,7 +136,6 @@ namespace tests
               .ShouldAllBeEquivalentTo(initialWorkorders.GetRange(1, 2));
             workDB.LoadUnfilledWorkorders("part3")
               .ShouldAllBeEquivalentTo(new Workorder[] { initialWorkorders[2] });
-            Assert.Equal("work1", workDB.LoadLastFilledWorkorderId());
 
             var lines = File.ReadAllLines("filled-workorders/work1.csv");
             Assert.Equal(2, lines.Count());

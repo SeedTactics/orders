@@ -126,19 +126,6 @@ namespace BlackMaple.CSVOrders
             return LoadUnfilledWorkordersMap().Values;
         }
 
-        public string LoadLastFilledWorkorderId()
-        {
-            var lastFile = Path.Combine(CSVBasePath, "last-filled-workorder.txt");
-            if (File.Exists(lastFile))
-            {
-                return File.ReadAllLines(lastFile)[0];
-            }
-            else
-            {
-                return null;
-            }
-        }
-
         public IEnumerable<Workorder> LoadUnfilledWorkorders(string part)
         {
             return LoadUnfilledWorkorders().Where(w => w.Parts.Any(p => p.Part == part));
@@ -209,16 +196,6 @@ namespace BlackMaple.CSVOrders
                         csv.WriteField(resources.PlannedOperationTimes[k].TotalMinutes);
                     }
                     csv.NextRecord();
-                }
-            }
-
-            using (var f = File.Open(Path.Combine(CSVBasePath, "last-filled-workorder.txt"), FileMode.Create))
-            {
-                using (var s = new StreamWriter(f))
-                {
-                    s.WriteLine(workorderId);
-                    s.Flush();
-                    f.Flush(true);
                 }
             }
         }
