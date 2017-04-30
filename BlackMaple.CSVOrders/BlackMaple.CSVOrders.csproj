@@ -3,12 +3,17 @@
   <PropertyGroup>
     <PackageId>BlackMaple.CSVOrders</PackageId>
     <AssemblyName>BlackMaple.CSVOrders</AssemblyName>
-    <VersionPrefix>0.0.1</VersionPrefix>
+    <VersionPrefix>1.0.0</VersionPrefix>
 
     <Title>SeedTactics OrderLink - CSV Order Plugin</Title>
     <Company>Black Maple Software, LLC</Company>
     <Product>SeedTactics</Product>
     <Copyright>Black Maple Software, LLC</Copyright>
+    <Authors>John Lenz</Authors>
+    <PackageLicenseUrl>https://opensource.org/licenses/BSD-3-Clause</PackageLicenseUrl>
+    <PackageProjectUrl>https://www.seedtactics.com</PackageProjectUrl>
+    <RepositoryUrl>https://bitbucket.org/blackmaple/seedorders</RepositoryUrl>
+    <RepositoryType>hg</RepositoryType>
 
     <TargetFrameworks>netstandard1.6;net35</TargetFrameworks>
     <OutputType>Library</OutputType>
@@ -17,7 +22,11 @@
 
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="2.*"/>
-    <ProjectReference Include="../BlackMaple.SeedOrders/BlackMaple.SeedOrders.csproj" />
+    <PackageReference Include="BlackMaple.SeedOrders" Version="1.*"/>
   </ItemGroup>
+
+  <PropertyGroup>
+    <FrameworkPathOverride Condition="'$(TargetFramework)' == 'net35'">C:\Program Files\Reference Assemblies\Microsoft\Framework\.NETFramework\v3.5\Profile\Client</FrameworkPathOverride>
+</PropertyGroup>
 
 </Project>

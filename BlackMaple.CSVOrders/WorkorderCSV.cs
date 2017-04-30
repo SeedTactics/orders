@@ -112,7 +112,7 @@ namespace BlackMaple.CSVOrders
 
             foreach (var id in workorderMap.Keys.ToList())
             {
-                var f = Path.Combine(CSVBasePath, FilledWorkordersPath, id + ".csv");
+                var f = Path.Combine(CSVBasePath, Path.Combine(FilledWorkordersPath, id + ".csv"));
                 if (File.Exists(f))
                 {
                     workorderMap.Remove(id);
@@ -145,7 +145,7 @@ namespace BlackMaple.CSVOrders
                 Directory.CreateDirectory(Path.Combine(CSVBasePath, FilledWorkordersPath));
             }
 
-            using (var f = File.OpenWrite(Path.Combine(CSVBasePath, FilledWorkordersPath, workorderId + ".csv")))
+            using (var f = File.OpenWrite(Path.Combine(CSVBasePath, Path.Combine(FilledWorkordersPath, workorderId + ".csv"))))
             {
                 using (var stream = new StreamWriter(f))
                 {

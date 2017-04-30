@@ -121,7 +121,7 @@ namespace BlackMaple.CSVOrders
 
             foreach (var id in bookingMap.Keys.ToList())
             {
-                var f = Path.Combine(CSVBasePath, ScheduledBookingsPath, id + ".csv");
+                var f = Path.Combine(CSVBasePath, Path.Combine(ScheduledBookingsPath, id + ".csv"));
                 if (File.Exists(f))
                 {
                     bookingMap.Remove(id);
@@ -169,7 +169,8 @@ namespace BlackMaple.CSVOrders
                     var csv = new CsvHelper.CsvWriter(s);
                     csv.WriteRecords(parts);
                     s.Flush();
-                    f.Flush(true);
+                    //f.Flush(true);
+                    f.Flush();
                 }
             }
         }
@@ -180,7 +181,7 @@ namespace BlackMaple.CSVOrders
 
             foreach (var bookingId in bookingIds)
             {
-                using (var f = File.Open(Path.Combine(CSVBasePath, ScheduledBookingsPath, bookingId + ".csv"), FileMode.Create))
+                using (var f = File.Open(Path.Combine(CSVBasePath, Path.Combine(ScheduledBookingsPath, bookingId + ".csv")), FileMode.Create))
                 {
                     using (var stream = new StreamWriter(f))
                     {
@@ -212,7 +213,8 @@ namespace BlackMaple.CSVOrders
                         }
 
                         stream.Flush();
-                        f.Flush(true);
+                        //f.Flush(true);
+                        f.Flush();
                     }
                 }
             }
