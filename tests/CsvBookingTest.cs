@@ -89,7 +89,7 @@ namespace tests
                      }
             });
 
-            using (var f = File.Open("unscheduled-bookings.csv", FileMode.Create))
+            using (var f = File.Open("bookings.csv", FileMode.Create))
             {
                 using (var s = new StreamWriter(f))
                 {

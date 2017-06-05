@@ -71,7 +71,26 @@ namespace BlackMaple.CSVOrders
                 using (var s = new StreamWriter(f))
                 {
                     var csv = new CsvHelper.CsvWriter(s);
+                    var autoMap = csv.Configuration.AutoMap<UnscheduledCsvRow>();
+                    autoMap.PropertyMaps[1].TypeConverterOption("yyyy-MM-dd");
+                    csv.Configuration.RegisterClassMap(autoMap);
                     csv.WriteHeader<UnscheduledCsvRow>();
+                    csv.WriteRecord<UnscheduledCsvRow>(new UnscheduledCsvRow()
+                    {
+                      Id = "12345",
+                      DueDate = DateTime.Today.AddDays(10),
+                      Priority = 100,
+                      Part = "part1",
+                      Quantity = 50
+                    });
+                    csv.WriteRecord<UnscheduledCsvRow>(new UnscheduledCsvRow()
+                    {
+                      Id = "98765",
+                      DueDate = DateTime.Today.AddDays(12),
+                      Priority = 100,
+                      Part = "part2",
+                      Quantity = 77
+                    });
                 }
             }
         }
@@ -79,7 +98,7 @@ namespace BlackMaple.CSVOrders
         private Dictionary<string, Booking> LoadUnscheduledBookings()
         {
             var bookingMap = new Dictionary<string, Booking>();
-            var pth = Path.Combine(CSVBasePath, "unscheduled-bookings.csv");
+            var pth = Path.Combine(CSVBasePath, "bookings.csv");
             if (!File.Exists(pth))
             {
                 CreateEmptyBookingFile(pth);
