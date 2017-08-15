@@ -15,18 +15,13 @@
     <RepositoryUrl>https://bitbucket.org/blackmaple/seedorders</RepositoryUrl>
     <RepositoryType>hg</RepositoryType>
 
-    <TargetFrameworks>netstandard1.6;net35</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <OutputType>Library</OutputType>
-    <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
+    <NetStandardImplicitPackageVersion>2.0.0</NetStandardImplicitPackageVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="2.*"/>
-    <PackageReference Include="BlackMaple.SeedOrders" Version="1.*"/>
+    <ProjectReference Include="../BlackMaple.SeedOrders/BlackMaple.SeedOrders.csproj" />
   </ItemGroup>
-
-  <PropertyGroup>
-    <FrameworkPathOverride Condition="'$(TargetFramework)' == 'net35'">C:\Program Files\Reference Assemblies\Microsoft\Framework\.NETFramework\v3.5\Profile\Client</FrameworkPathOverride>
-</PropertyGroup>
-
 </Project>

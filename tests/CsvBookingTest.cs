@@ -33,6 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.IO;
 using FluentAssertions;
 using Xunit;
@@ -49,7 +50,8 @@ namespace tests
         {
             if (Directory.Exists("scheduled-bookings"))
                 Directory.Delete("scheduled-bookings", true);
-            foreach (var f in Directory.GetFiles(".", "scheduled-parts-temp*.csv")) {
+            foreach (var f in Directory.GetFiles(".", "scheduled-parts-temp*.csv"))
+            {
                 File.Delete(f);
             }
             initialBookings = new List<Booking>();
@@ -159,10 +161,16 @@ namespace tests
                     new DownloadedPart {ScheduleId = "12345", Part = "part2", Quantity = 166}
                 };
 
-            booking.CreateSchedule("12345", new DateTime(2016, 11, 05), TimeSpan.FromMinutes(155),
-                new string[] { "booking1", "booking2" },
-                downParts,
-                schParts);
+            booking.CreateSchedule(
+                new NewSchedule
+                {
+                    ScheduleId = "12345",
+                    ScheduledTimeUTC = new DateTime(2016, 11, 05),
+                    ScheduledHorizon = TimeSpan.FromMinutes(155),
+                    BookingIds = new List<string>() { "booking1", "booking2" },
+                    DownloadedParts = downParts.ToList(),
+                    ScheduledParts = schParts.ToList()
+                });
 
             //check status
             var status = booking.LoadUnscheduledStatus();

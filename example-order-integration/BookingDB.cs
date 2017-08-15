@@ -49,28 +49,28 @@ namespace ExampleOrderIntegration
             }
         }
 
-        public void CreateSchedule(string scheduleId, DateTime scheduledTimeUTC, TimeSpan scheduledHorizon, IEnumerable<string> bookingIds, IEnumerable<DownloadedPart> downloadedParts, IEnumerable<ScheduledPartWithoutBooking> scheduledParts)
+        public void CreateSchedule(NewSchedule s)
         {
             using (var context = new BookingContext())
             {
                 context.Schedules.Add(new Schedule
                 {
-                    ScheduleId = scheduleId,
-                    ScheduledTimeUTC = scheduledTimeUTC,
-                    ScheduledHorizon = scheduledHorizon,
-                    DownloadedParts = downloadedParts.ToList(),
+                    ScheduleId = s.ScheduleId,
+                    ScheduledTimeUTC = s.ScheduledTimeUTC,
+                    ScheduledHorizon = s.ScheduledHorizon,
+                    DownloadedParts = s.DownloadedParts,
                     Bookings = null
                 }
                 );
 
-                foreach (var bookingId in bookingIds)
+                foreach (var bookingId in s.BookingIds)
                 {
                     var booking = context.Bookings.Single(b => b.BookingId == bookingId);
-                    booking.ScheduleId = scheduleId;
+                    booking.ScheduleId = s.ScheduleId;
                 }
 
                 var oldParts = context.ExtraParts.ToDictionary(p => p.Part);
-                var newParts = scheduledParts.ToDictionary(p => p.Part);
+                var newParts = s.ScheduledParts.ToDictionary(p => p.Part);
 
                 foreach (var p in newParts)
                 {

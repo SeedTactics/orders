@@ -167,6 +167,19 @@ namespace BlackMaple.SeedOrders
     }
 
     /// <summary>
+    ///   The data passed in when creating a new schedule
+    /// </summary>
+    public class NewSchedule
+    {
+        public string ScheduleId {get; set;}
+        public DateTime ScheduledTimeUTC {get;set;}
+        public TimeSpan ScheduledHorizon {get;set;}
+        public List<string> BookingIds {get;set;}
+        public List<DownloadedPart> DownloadedParts {get;set;}
+        public List<ScheduledPartWithoutBooking> ScheduledParts {get;set;}
+    }
+
+    /// <summary>
     ///   The main interface to interact with bookings.
     /// </summary>
     /// <remarks>
@@ -191,13 +204,7 @@ namespace BlackMaple.SeedOrders
         ///     should be stored.
         ///   </para>
         /// </remarks>
-        void CreateSchedule( string scheduleId
-                           , DateTime scheduledTimeUTC
-                           , TimeSpan scheduledHorizon
-                           , IEnumerable<string> bookingIds
-                           , IEnumerable<DownloadedPart> downloadedParts
-                           , IEnumerable<ScheduledPartWithoutBooking> scheduledParts
-                           );
+        void CreateSchedule(NewSchedule newData);
 
         /// <summary>
         ///   Load history of all scheduled bookings with scheduled date between the given start and end time.

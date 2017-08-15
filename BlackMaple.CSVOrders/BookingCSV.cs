@@ -220,16 +220,16 @@ namespace BlackMaple.CSVOrders
             }
         }
 
-        public void CreateSchedule(string scheduleId, DateTime scheduledTimeUTC, TimeSpan scheduledHorizon, IEnumerable<string> bookingIds, IEnumerable<DownloadedPart> downloadedParts, IEnumerable<ScheduledPartWithoutBooking> scheduledParts)
+        public void CreateSchedule(NewSchedule s)
         {
             if (!Directory.Exists(Path.Combine(CSVBasePath, ScheduledBookingsPath)))
                 Directory.CreateDirectory(Path.Combine(CSVBasePath, ScheduledBookingsPath));
 
-            var schTempFile = Path.Combine(CSVBasePath, "scheduled-parts-temp-" + scheduleId + ".csv");
+            var schTempFile = Path.Combine(CSVBasePath, "scheduled-parts-temp-" + s.ScheduleId + ".csv");
             var schFile = Path.Combine(CSVBasePath, "scheduled-parts.csv");
-            WriteScheduledParts(schTempFile, scheduledParts);
+            WriteScheduledParts(schTempFile, s.ScheduledParts);
 
-            WriteScheduledBookings(scheduleId, scheduledTimeUTC, bookingIds);
+            WriteScheduledBookings(s.ScheduleId, s.ScheduledTimeUTC, s.BookingIds);
 
             if (File.Exists(schFile)) File.Delete(schFile);
             File.Move(schTempFile, schFile);

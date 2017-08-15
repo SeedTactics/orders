@@ -138,10 +138,16 @@ namespace tests
                     new DownloadedPart {ScheduleId = "12345", Part = "part2", Quantity = 166}
                 };
 
-            booking.CreateSchedule("12345", new DateTime(2016, 11, 05), TimeSpan.FromMinutes(155),
-                new string[] { "booking1", "booking2" },
-                downParts,
-                schParts);
+            booking.CreateSchedule(
+                new NewSchedule
+                {
+                    ScheduleId = "12345",
+                    ScheduledTimeUTC = new DateTime(2016, 11, 05),
+                    ScheduledHorizon = TimeSpan.FromMinutes(155),
+                    BookingIds = new List<string> { "booking1", "booking2" },
+                    DownloadedParts = downParts.ToList(),
+                    ScheduledParts = schParts.ToList()
+                });
 
             using (var ctx = new ExampleOrderIntegration.BookingContext())
             {
