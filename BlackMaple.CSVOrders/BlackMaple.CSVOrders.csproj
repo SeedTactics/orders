@@ -22,6 +22,6 @@
 
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="2.*"/>
-    <ProjectReference Include="../BlackMaple.SeedOrders/BlackMaple.SeedOrders.csproj" />
+    <PackageReference Include="BlackMaple.SeedOrders" Version="2.*"/>
   </ItemGroup>
 </Project>
