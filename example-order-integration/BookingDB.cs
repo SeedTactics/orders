@@ -36,16 +36,17 @@ namespace ExampleOrderIntegration
         {
             using (var context = new BookingContext())
             {
-                var ret = default(UnscheduledStatus);
-                ret.UnscheduledBookings = context.Bookings
-                    .Where(b => b.ScheduleId == null)
-                    .Include(b => b.Parts)
-                    .AsNoTracking()
-                    .ToList();
-                ret.ScheduledParts = context.ExtraParts
-                    .AsNoTracking()
-                    .ToList();
-                return ret;
+                return new UnscheduledStatus
+                {
+                    UnscheduledBookings = context.Bookings
+                        .Where(b => b.ScheduleId == null)
+                        .Include(b => b.Parts)
+                        .AsNoTracking()
+                        .ToList(),
+                    ScheduledParts = context.ExtraParts
+                        .AsNoTracking()
+                        .ToList()
+                };
             }
         }
 

@@ -154,10 +154,11 @@ namespace BlackMaple.CSVOrders
 
         public UnscheduledStatus LoadUnscheduledStatus()
         {
-            var ret = default(UnscheduledStatus);
-            ret.UnscheduledBookings = LoadUnscheduledBookings().Values;
-            ret.ScheduledParts = LoadScheduledParts();
-            return ret;
+            return new UnscheduledStatus
+            {
+                UnscheduledBookings = LoadUnscheduledBookings().Values,
+                ScheduledParts = LoadScheduledParts()
+            };
         }
 
         private void WriteScheduledParts(string file, IEnumerable<ScheduledPartWithoutBooking> parts)

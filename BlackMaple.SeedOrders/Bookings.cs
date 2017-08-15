@@ -33,15 +33,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace BlackMaple.SeedOrders
 {
 
     /// <summary>A <c>BookingDemand</c> is an order for a single part and quantity and is held inside a <c>Booking</c>.</summary>
+    [DataContract]
     public class BookingDemand
     {
+        [DataMember]
         public string BookingId { get; set; }
+
+        [DataMember]
         public string Part { get; set; }
+
+        [DataMember]
         public int Quantity { get; set; }
     }
 
@@ -58,21 +65,27 @@ namespace BlackMaple.SeedOrders
     ///     part quantities change on the order, where the workorder is updated but a new booking with the change in demand in created.
     ///   </para>
     /// </remarks>
+    [DataContract]
     public class Booking
     {
         /// <summary>The unique identifier for a booking</summary>
+        [DataMember]
         public string BookingId { get; set; }
 
         /// <summary>The due date is used as the primary means to determine which booking to produce first.</summary>
+        [DataMember]
         public DateTime DueDate { get; set; }
 
         /// <summary>Bookings with the same due date are sorted by priority (larger integers are higher priority).</summary>
+        [DataMember]
         public int Priority { get; set; }
 
         ///<summary>The schedule id if this booking has been scheduled.  If the booking has not yet been scheduled, this is null</summary>
+        [DataMember]
         public string ScheduleId { get; set; }
 
         ///<summary>The parts to produce for this booking</summary>
+        [DataMember]
         public List<BookingDemand> Parts { get; set; }
     }
 
@@ -88,10 +101,16 @@ namespace BlackMaple.SeedOrders
     ///     to the machine controller.
     ///   </para>
     /// </remarks>
+    [DataContract]
     public class DownloadedPart
     {
+        [DataMember]
         public string ScheduleId { get; set; }
+
+        [DataMember]
         public string Part { get; set; }
+
+        [DataMember]
         public int Quantity { get; set; }
     }
 
@@ -117,21 +136,27 @@ namespace BlackMaple.SeedOrders
     ///   so when writing the interface between OrderLink and your ERP system, you just need to store and retrieve this data.
     ///   </para>
     /// </remarks>
+    [DataContract]
     public class Schedule
     {
         /// <summary>Each schedule is assigned a unique <c>Id</c> which is monotonically increasing.</summary>
+        [DataMember]
         public string ScheduleId { get; set; }
 
         /// <summary>The time in coordinated universal time (UTC) that the schedule was created.</summary>
+        [DataMember]
         public DateTime ScheduledTimeUTC { get; set; }
 
         /// <summary>The expected timespan to complete all demand for this schedule.</summary>
+        [DataMember]
         public TimeSpan ScheduledHorizon { get; set; }
 
         /// <summary>The bookings which can finally be marked as completed.</summary>
+        [DataMember]
         public List<Booking> Bookings { get; set; }
 
         /// <summary>The parts downloaded into the machine controller as part of this booking.</summary>
+        [DataMember]
         public List<DownloadedPart> DownloadedParts { get; set; }
     }
 
@@ -141,9 +166,13 @@ namespace BlackMaple.SeedOrders
     ///   Typically, these parts arise when an entire <c>Booking</c> can't be scheduled all at once.
     ///   </para>
     /// </remarks>
+    [DataContract]
     public class ScheduledPartWithoutBooking
     {
+        [DataMember]
         public string Part { get; set; }
+
+        [DataMember]
         public int Quantity { get; set; }
     }
 
@@ -153,29 +182,44 @@ namespace BlackMaple.SeedOrders
     ///    This type is used only to return multiple data at once about unscheduled bookings
     ///  </para>
     /// </remarks>
-    public struct UnscheduledStatus
+    [DataContract]
+    public class UnscheduledStatus
     {
         /// <summary>
         ///   All unscheduled bookings in the system.
         /// </summary>
+        [DataMember]
         public IEnumerable<Booking> UnscheduledBookings;
 
         /// <summary>
         ///   All scheduled parts in the system.
         /// </summary>
+        [DataMember]
         public IEnumerable<ScheduledPartWithoutBooking> ScheduledParts;
     }
 
     /// <summary>
     ///   The data passed in when creating a new schedule
     /// </summary>
+    [DataContract]
     public class NewSchedule
     {
+        [DataMember]
         public string ScheduleId {get; set;}
+
+        [DataMember]
         public DateTime ScheduledTimeUTC {get;set;}
+
+        [DataMember]
         public TimeSpan ScheduledHorizon {get;set;}
+
+        [DataMember]
         public List<string> BookingIds {get;set;}
+
+        [DataMember]
         public List<DownloadedPart> DownloadedParts {get;set;}
+
+        [DataMember]
         public List<ScheduledPartWithoutBooking> ScheduledParts {get;set;}
     }
 

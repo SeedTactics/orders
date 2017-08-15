@@ -33,14 +33,21 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace BlackMaple.SeedOrders
 {
     /// <summary>A <c>WorkorderDemand</c> is an order for a single part and quantity and is held inside a <c>Workorder</c>.</summary>
+    [DataContract]
     public class WorkorderDemand
     {
+        [DataMember]
         public string WorkorderId { get; set; }
+
+        [DataMember]
         public string Part { get; set; }
+
+        [DataMember]
         public int Quantity { get; set; }
     }
 
@@ -60,15 +67,19 @@ namespace BlackMaple.SeedOrders
     ///     change.  Unfilled workorders can be edited at any time.
     ///   </para>
     /// </remarks>
+    [DataContract]
     public class Workorder
     {
         ///<summary>The unique id for this workorder</summary>
+        [DataMember]
         public string WorkorderId { get; set; }
 
         /// <summary>The due date is used as the primary means to determine which workorder to fill first.</summary>
+        [DataMember]
         public DateTime DueDate { get; set; }
 
         /// <summary>Workorders with the same due date are sorted by priority (larger integers are higher priority).</summary>
+        [DataMember]
         public int Priority { get; set; }
 
         /// <summary>The time in coordinated universal time (UTC) when the final part was assigned to this workorder</summary>
@@ -78,18 +89,22 @@ namespace BlackMaple.SeedOrders
         ///    parts should be assigned to it again.
         ///  </para>
         /// </remarks>
+        [DataMember]
         public DateTime? FilledUTC { get; set; }
 
         ///<summary>The parts required to fill this workorder</summary>
+        [DataMember]
         public List<WorkorderDemand> Parts { get; set; }
     }
 
     /// <summary>
     ///   A <c>WorkorderResources</c> summarizes the execution of the parts assigned to the workorder.
     /// </summary>
+    [DataContract]
     public class WorkorderResources
     {
         ///<summary>The serials of all parts assigned to this workorder</summary>
+        [DataMember]
         public List<string> Serials { get; set; }
 
         /// <summary>The actual times used by the parts in this workorder at each station</summary>
@@ -99,6 +114,7 @@ namespace BlackMaple.SeedOrders
         ///   over all serials assigned to this workorder.
         ///   </para>
         /// </remarks>
+        [DataMember]
         public Dictionary<string, TimeSpan> ActualOperationTimes { get; set; }
 
         /// <summary>The planned times used by the parts in this workorder at each station</summary>
@@ -108,6 +124,7 @@ namespace BlackMaple.SeedOrders
         ///   that the part should spend at this station over all serials assigned to this workorder.
         ///   </para>
         /// </remarks>
+        [DataMember]
         public Dictionary<string, TimeSpan> PlannedOperationTimes { get; set; }
     }
 
@@ -118,9 +135,12 @@ namespace BlackMaple.SeedOrders
     ///    if not all resources are stored, that is OK.  Load only what has been stored.
     ///  </para>
     ///</remarks>
+    [DataContract]
     public class FilledWorkorderAndResources
     {
+        [DataMember]
         public Workorder Workorder;
+        [DataMember]
         public WorkorderResources Resources;
     }
 
