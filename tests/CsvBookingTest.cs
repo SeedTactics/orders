@@ -211,5 +211,59 @@ namespace tests
             });
             status.UnscheduledBookings.ShouldAllBeEquivalentTo(initialBookings);
         }
+
+        [Fact]
+        public void BackOutOfWork()
+        {
+            var booking = new BlackMaple.CSVOrders.CSVBookings();
+            booking.HandleBackedOutWork(new[] {
+                new ScheduledPartWithoutBooking
+                {
+                    Part = "abc",
+                    Quantity = 23
+                },
+                new ScheduledPartWithoutBooking
+                {
+                    Part = "def",
+                    Quantity = 193
+                }
+            });
+
+            var bookingId = "Reschedule:abc:" + DateTime.UtcNow.ToString("yyy-MM-ddTHH-mm-ssZ");
+            initialBookings.Add(new Booking
+            {
+                BookingId = bookingId,
+                DueDate = DateTime.Today,
+                Priority = 100,
+                Parts = new List<BookingDemand> {
+                    new BookingDemand
+                    {
+                        BookingId = bookingId,
+                        Part = "abc",
+                        Quantity = 23
+                    }
+                }
+            });
+
+            bookingId = "Reschedule:def:" + DateTime.UtcNow.ToString("yyy-MM-ddTHH-mm-ssZ");
+            initialBookings.Add(new Booking
+            {
+                BookingId = bookingId,
+                DueDate = DateTime.Today,
+                Priority = 100,
+                Parts = new List<BookingDemand> {
+                    new BookingDemand
+                    {
+                        BookingId = bookingId,
+                        Part = "def",
+                        Quantity = 193
+                    }
+                }
+            });
+
+            var status = booking.LoadUnscheduledStatus();
+            status.ScheduledParts.ShouldAllBeEquivalentTo(initialSchParts);
+            status.UnscheduledBookings.ShouldAllBeEquivalentTo(initialBookings);
+        }
     }
 }

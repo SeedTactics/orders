@@ -3,7 +3,7 @@
   <PropertyGroup>
     <PackageId>ExampleSeedTacticsOrders</PackageId>
     <AssemblyName>ExampleSeedTacticsOrders</AssemblyName>
-    <VersionPrefix>0.0.1</VersionPrefix>
+    <VersionPrefix>1.0.0</VersionPrefix>
 
     <Title>OrderLink Integration Example</Title>
     <Company>Black Maple Software, LLC</Company>
@@ -12,7 +12,6 @@
 
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <OutputType>Library</OutputType>
-    <NetStandardImplicitPackageVersion>2.0.0</NetStandardImplicitPackageVersion>
   </PropertyGroup>
 
   <ItemGroup>

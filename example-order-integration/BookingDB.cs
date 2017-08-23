@@ -109,6 +109,30 @@ namespace ExampleOrderIntegration
             }
         }
 
-
+        public void HandleBackedOutWork(IEnumerable<ScheduledPartWithoutBooking> backedOutParts)
+        {
+            using (var context = new BookingContext())
+            {
+                foreach (var p in backedOutParts)
+                {
+                    var bookingId = "Reschedule:" + p.Part + ":" + DateTime.UtcNow.ToString("yyy-MM-ddTHH-mm-ssZ");
+                    context.Bookings.Add(new Booking
+                    {
+                        BookingId = bookingId,
+                        DueDate = DateTime.Today,
+                        Priority = 100,
+                        Parts = new List<BookingDemand> {
+                            new BookingDemand
+                            {
+                                BookingId = bookingId,
+                                Part = p.Part,
+                                Quantity = p.Quantity
+                            }
+                        }
+                    });
+                }
+                context.SaveChanges();
+            }
+        }
     }
 }

@@ -77,19 +77,19 @@ namespace BlackMaple.CSVOrders
                     csv.WriteHeader<UnscheduledCsvRow>();
                     csv.WriteRecord<UnscheduledCsvRow>(new UnscheduledCsvRow()
                     {
-                      Id = "12345",
-                      DueDate = DateTime.Today.AddDays(10),
-                      Priority = 100,
-                      Part = "part1",
-                      Quantity = 50
+                        Id = "12345",
+                        DueDate = DateTime.Today.AddDays(10),
+                        Priority = 100,
+                        Part = "part1",
+                        Quantity = 50
                     });
                     csv.WriteRecord<UnscheduledCsvRow>(new UnscheduledCsvRow()
                     {
-                      Id = "98765",
-                      DueDate = DateTime.Today.AddDays(12),
-                      Priority = 100,
-                      Part = "part2",
-                      Quantity = 77
+                        Id = "98765",
+                        DueDate = DateTime.Today.AddDays(12),
+                        Priority = 100,
+                        Part = "part2",
+                        Quantity = 77
                     });
                 }
             }
@@ -157,7 +157,8 @@ namespace BlackMaple.CSVOrders
             var tempSchFile = Directory.GetFiles(CSVBasePath, "scheduled-parts-temp-*.csv")
                 .OrderBy(x => x)
                 .LastOrDefault();
-            if (!string.IsNullOrEmpty(tempSchFile)) {
+            if (!string.IsNullOrEmpty(tempSchFile))
+            {
                 if (File.Exists(schFile)) File.Delete(schFile);
                 File.Move(tempSchFile, schFile);
             }
@@ -253,6 +254,38 @@ namespace BlackMaple.CSVOrders
 
             if (File.Exists(schFile)) File.Delete(schFile);
             File.Move(schTempFile, schFile);
+        }
+
+        public void HandleBackedOutWork(IEnumerable<ScheduledPartWithoutBooking> backedOutParts)
+        {
+            var file = Path.Combine(CSVBasePath, "bookings.csv");
+            var fileExists = System.IO.File.Exists(file);
+
+            using (var f = File.Open(file, FileMode.Append, FileAccess.Write, FileShare.None))
+            {
+                using (var s = new StreamWriter(f))
+                {
+                    var csv = new CsvHelper.CsvWriter(s);
+                    var autoMap = csv.Configuration.AutoMap<UnscheduledCsvRow>();
+                    autoMap.PropertyMaps[1].TypeConverterOption("yyyy-MM-dd");
+                    csv.Configuration.RegisterClassMap(autoMap);
+
+                    if (!fileExists)
+                        csv.WriteHeader<UnscheduledCsvRow>();
+
+                    foreach (var p in backedOutParts)
+                    {
+                        csv.WriteRecord<UnscheduledCsvRow>(new UnscheduledCsvRow()
+                        {
+                            Id = "Reschedule:" + p.Part + ":" + DateTime.UtcNow.ToString("yyy-MM-ddTHH-mm-ssZ"),
+                            DueDate = DateTime.Today,
+                            Priority = 100,
+                            Part = p.Part,
+                            Quantity = p.Quantity
+                        });
+                    }
+                }
+            }
         }
 
         public IEnumerable<Schedule> LoadSchedulesByDate(DateTime startUTC, DateTime endUTC)
