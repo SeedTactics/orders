@@ -44,7 +44,21 @@ namespace BlackMaple.CSVOrders
     ///</summary>
     public class CSVBookings : IBookingDatabase
     {
-        public string CSVBasePath { get; set; } = ".";
+        private string _csvBase = null;
+        public string CSVBasePath
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_csvBase))
+                    return Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+                else 
+                    return _csvBase;
+            }
+            set
+            {
+                _csvBase = value;
+            }
+        }
         public string ScheduledBookingsPath { get; set; } = "scheduled-bookings";
 
         private class UnscheduledCsvRow
@@ -172,12 +186,22 @@ namespace BlackMaple.CSVOrders
             }
         }
 
+        private string LoadLatestBackoutId()
+        {
+            string f = Path.Combine(CSVBasePath, "latest-backout-id");
+            if (File.Exists(f))
+                return File.ReadAllText(f);
+            else
+                return null;
+        }
+
         public UnscheduledStatus LoadUnscheduledStatus()
         {
             return new UnscheduledStatus
             {
                 UnscheduledBookings = LoadUnscheduledBookings().Values,
-                ScheduledParts = LoadScheduledParts()
+                ScheduledParts = LoadScheduledParts(),
+                LatestBackoutId = LoadLatestBackoutId()
             };
         }
 
@@ -256,10 +280,12 @@ namespace BlackMaple.CSVOrders
             File.Move(schTempFile, schFile);
         }
 
-        public void HandleBackedOutWork(IEnumerable<ScheduledPartWithoutBooking> backedOutParts)
+        public void HandleBackedOutWork(string backoutId, IEnumerable<BackedOutPart> backedOutParts)
         {
             var file = Path.Combine(CSVBasePath, "bookings.csv");
             var fileExists = System.IO.File.Exists(file);
+
+            File.WriteAllText(Path.Combine(CSVBasePath, "latest-backout-id"), backoutId);
 
             using (var f = File.Open(file, FileMode.Append, FileAccess.Write, FileShare.None))
             {

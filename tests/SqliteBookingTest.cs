@@ -119,6 +119,7 @@ namespace tests
             var status = booking.LoadUnscheduledStatus();
             status.ScheduledParts.ShouldAllBeEquivalentTo(initialSchParts);
             status.UnscheduledBookings.ShouldAllBeEquivalentTo(initialBookings);
+            Assert.Null(status.LatestBackoutId);
         }
 
         [Fact]
@@ -169,6 +170,7 @@ namespace tests
             status.UnscheduledBookings.ShouldAllBeEquivalentTo(
                 new Booking[] { initialBookings[2] }
             );
+            Assert.Null(status.LatestBackoutId);
 
             initialBookings[0].ScheduleId = "12345";
             initialBookings[1].ScheduleId = "12345";
@@ -187,17 +189,17 @@ namespace tests
               });
         }
 
-                [Fact]
+        [Fact]
         public void BackOutOfWork()
         {
             var booking = new ExampleOrderIntegration.ExampleBookingDatabase();
-            booking.HandleBackedOutWork(new[] {
-                new ScheduledPartWithoutBooking
+            booking.HandleBackedOutWork("thebackoutid", new[] {
+                new BackedOutPart
                 {
                     Part = "abc",
                     Quantity = 23
                 },
-                new ScheduledPartWithoutBooking
+                new BackedOutPart
                 {
                     Part = "def",
                     Quantity = 193
@@ -239,6 +241,7 @@ namespace tests
             var status = booking.LoadUnscheduledStatus();
             status.ScheduledParts.ShouldAllBeEquivalentTo(initialSchParts);
             status.UnscheduledBookings.ShouldAllBeEquivalentTo(initialBookings);
+            Assert.Equal("thebackoutid", status.LatestBackoutId);
         }
     }
 }

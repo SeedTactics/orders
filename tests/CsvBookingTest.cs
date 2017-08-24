@@ -50,6 +50,8 @@ namespace tests
         {
             if (Directory.Exists("scheduled-bookings"))
                 Directory.Delete("scheduled-bookings", true);
+            if (File.Exists("latest-backout-id"))
+                File.Delete("latest-backout-id");
             foreach (var f in Directory.GetFiles(".", "scheduled-parts-temp*.csv"))
             {
                 File.Delete(f);
@@ -142,6 +144,7 @@ namespace tests
             var status = booking.LoadUnscheduledStatus();
             status.ScheduledParts.ShouldAllBeEquivalentTo(initialSchParts);
             status.UnscheduledBookings.ShouldAllBeEquivalentTo(initialBookings);
+            Assert.Null(status.LatestBackoutId);
         }
 
         [Fact]
@@ -178,6 +181,7 @@ namespace tests
             status.UnscheduledBookings.ShouldAllBeEquivalentTo(
                 new Booking[] { initialBookings[2] }
             );
+            Assert.Null(status.LatestBackoutId);
 
             var sch1 = File.ReadAllLines("scheduled-bookings/booking1.csv");
             var sch2 = File.ReadAllLines("scheduled-bookings/booking2.csv");
@@ -210,19 +214,20 @@ namespace tests
                 new ScheduledPartWithoutBooking { Part = "otherpart", Quantity = 17}
             });
             status.UnscheduledBookings.ShouldAllBeEquivalentTo(initialBookings);
+            Assert.Null(status.LatestBackoutId);
         }
 
         [Fact]
         public void BackOutOfWork()
         {
             var booking = new BlackMaple.CSVOrders.CSVBookings();
-            booking.HandleBackedOutWork(new[] {
-                new ScheduledPartWithoutBooking
+            booking.HandleBackedOutWork("thebackoutid", new[] {
+                new BackedOutPart
                 {
                     Part = "abc",
                     Quantity = 23
                 },
-                new ScheduledPartWithoutBooking
+                new BackedOutPart
                 {
                     Part = "def",
                     Quantity = 193
@@ -264,6 +269,7 @@ namespace tests
             var status = booking.LoadUnscheduledStatus();
             status.ScheduledParts.ShouldAllBeEquivalentTo(initialSchParts);
             status.UnscheduledBookings.ShouldAllBeEquivalentTo(initialBookings);
+            Assert.Equal("thebackoutid", status.LatestBackoutId);
         }
     }
 }

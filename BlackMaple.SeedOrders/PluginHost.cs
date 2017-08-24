@@ -33,6 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using System;
 using System.Reflection;
+using System.Collections.Generic;
 using System.Runtime.Serialization.Json;
 using System.IO;
 
@@ -109,6 +110,15 @@ namespace BlackMaple.SeedOrders
         {
             if (_bookings == null) throw new Exception("Plugin does not implement booking API");
             return EncJson(_bookings.LoadSchedulesByDate(startUTC, endUTC));
+        }
+
+        void HandleBackedOutWork(string backoutId, string backedOutParts)
+        {
+            if (_bookings == null) throw new Exception("Plugin does not implement booking API");
+            _bookings.HandleBackedOutWork(
+                backoutId,
+                DecJson<List<BackedOutPart>>(backedOutParts)
+            );
         }
         #endregion
 

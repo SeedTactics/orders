@@ -189,13 +189,25 @@ namespace BlackMaple.SeedOrders
         ///   All unscheduled bookings in the system.
         /// </summary>
         [DataMember]
-        public IEnumerable<Booking> UnscheduledBookings;
+        public IEnumerable<Booking> UnscheduledBookings {get;set;}
 
         /// <summary>
         ///   All scheduled parts in the system.
         /// </summary>
         [DataMember]
-        public IEnumerable<ScheduledPartWithoutBooking> ScheduledParts;
+        public IEnumerable<ScheduledPartWithoutBooking> ScheduledParts {get;set;}
+
+        ///<summary>
+        ///  The latest backout id, which is used to prevent a backout from being recorded multiple times
+        ///</summary>
+        ///<remarks>
+        ///  <para>
+        ///  Can be null if backouts are not used.  See the documentation on <c>HandleBackedOutWork</c>
+        ///  for more details.
+        ///  </para>
+        ///</remarks>
+        [DataMember]
+        public string LatestBackoutId {get;set;}
     }
 
     /// <summary>
@@ -221,6 +233,17 @@ namespace BlackMaple.SeedOrders
 
         [DataMember]
         public List<ScheduledPartWithoutBooking> ScheduledParts {get;set;}
+    }
+
+    /// <summary>Records a part and quantity that was removed from the cell controller</summary>
+    [DataContract]
+    public class BackedOutPart
+    {
+        [DataMember]
+        public string Part { get; set; }
+
+        [DataMember]
+        public int Quantity { get; set; }
     }
 
     /// <summary>
@@ -272,16 +295,20 @@ namespace BlackMaple.SeedOrders
         ///    from the cell controller.
         ///  </para>
         ///  <para>
-        ///    While one option to handle backed out work is to try and find the bookings
+        ///    When backing out of work, the first step is to try and find the bookings
         ///    that were recently scheduled and change them from scheduled to unscheduled.
         ///    The problem is that we are likely only backing out of partial quantities.
-        ///    A better method is to just leave the original bookings as scheduled and create
-        ///    new bookings.  For example, make bookings with a <c>BookingId</c> something
-        ///    such as <c>Reschedule:[part]:[datetime]</c> and a high priority and due date.
+        ///    A better method is to first try and find any bookings with quantities smaller
+        ///    than what we are backing out and change them from scheduled to unscheduled.
+        ///    If there are still partial quantities left over, rather than trying to edit the
+        ///    booking, leave the original bookings as scheduled and create a new booking.
+        ///    For example, make a booking with a <c>BookingId</c> something such as
+        ///    <c>Reschedule:[part]:[datetime]</c> and a high priority and due date.
         ///    Because you are adding a new booking exactly for the quantity removed,
         ///    the same number of parts will be produced as if you never backed out any work.
         ///    Thus workorders can be left unchanged and not even be aware that such a
-        ///    reschedule took place.
+        ///    reschedule took place.  For bookings which are changed from Scheduled to Unscheduled,
+        ///    the ScheduleId should be left unchanged until the booking is scheduled again.
         ///  </para>
         ///  <para>
         ///    There are benifits and downsides to rescheduling, which is why it is a setting
@@ -303,7 +330,13 @@ namespace BlackMaple.SeedOrders
         ///    optimize.  Backing out of work on the whole is a good idea to be able to respond
         ///    to uncertianty and recover from any issues that might arise.
         ///  </para>
+        ///  <para>
+        ///    Finally, each backout is assigned a unique increasing identifier.  This <c>BackoutId</c>
+        ///    is primarily intended to prevent a backout from being recorded multiple times.  Therefore,
+        ///    the <c>BackoutId</c> should be stored in the same database transaction that records the
+        ///    backed out parts, and returned as part of the <c>UnscheduledStatus</c>.
+        ///  </para>
         /// </remarks>
-        void HandleBackedOutWork(IEnumerable<ScheduledPartWithoutBooking> backedOutParts);
+        void HandleBackedOutWork(string backoutId, IEnumerable<BackedOutPart> backedOutParts);
     }
 }

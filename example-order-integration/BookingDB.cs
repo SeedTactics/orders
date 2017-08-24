@@ -8,9 +8,15 @@ namespace ExampleOrderIntegration
 {
     public class BookingContext : DbContext
     {
+        public class LatestBackoutIdSingleton
+        {
+            public string BackoutId {get; set;}
+        }
+
         public DbSet<Booking> Bookings { get; set; }
         public DbSet<Schedule> Schedules { get; set; }
         public DbSet<ScheduledPartWithoutBooking> ExtraParts { get; set; }
+        public DbSet<LatestBackoutIdSingleton> LatestBackoutId {get;set;}
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -27,6 +33,8 @@ namespace ExampleOrderIntegration
               .HasKey(p => p.Part);
             m.Entity<Schedule>()
               .HasIndex(s => s.ScheduledTimeUTC);
+            m.Entity<LatestBackoutIdSingleton>()
+              .HasKey(x => x.BackoutId);
         }
     }
 
@@ -45,7 +53,11 @@ namespace ExampleOrderIntegration
                         .ToList(),
                     ScheduledParts = context.ExtraParts
                         .AsNoTracking()
-                        .ToList()
+                        .ToList(),
+                    LatestBackoutId = context.LatestBackoutId
+                        .AsNoTracking()
+                        .Select(x => x.BackoutId)
+                        .FirstOrDefault()
                 };
             }
         }
@@ -109,10 +121,20 @@ namespace ExampleOrderIntegration
             }
         }
 
-        public void HandleBackedOutWork(IEnumerable<ScheduledPartWithoutBooking> backedOutParts)
+        public void HandleBackedOutWork(string backoutId, IEnumerable<BackedOutPart> backedOutParts)
         {
             using (var context = new BookingContext())
             {
+                var latest = context.LatestBackoutId.FirstOrDefault();
+                if (latest == null)
+                {
+                    context.LatestBackoutId.Add(new BookingContext.LatestBackoutIdSingleton { BackoutId = backoutId});
+                }
+                else
+                {
+                    latest.BackoutId = backoutId;
+                }
+
                 foreach (var p in backedOutParts)
                 {
                     var bookingId = "Reschedule:" + p.Part + ":" + DateTime.UtcNow.ToString("yyy-MM-ddTHH-mm-ssZ");
