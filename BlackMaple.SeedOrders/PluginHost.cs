@@ -112,7 +112,7 @@ namespace BlackMaple.SeedOrders
             return EncJson(_bookings.LoadSchedulesByDate(startUTC, endUTC));
         }
 
-        void HandleBackedOutWork(string backoutId, string backedOutParts)
+        public void HandleBackedOutWork(string backoutId, string backedOutParts)
         {
             if (_bookings == null) throw new Exception("Plugin does not implement booking API");
             _bookings.HandleBackedOutWork(
