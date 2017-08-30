@@ -128,23 +128,6 @@ namespace BlackMaple.SeedOrders
         public Dictionary<string, TimeSpan> PlannedOperationTimes { get; set; }
     }
 
-    ///<summary>Contains the workorder and the resources used by the workorder</summary>
-    ///<remarks>
-    ///  <para>
-    ///    This type is used only when returning data from querying existing workorders.  When loading,
-    ///    if not all resources are stored, that is OK.  Load only what has been stored.
-    ///  </para>
-    ///</remarks>
-    [DataContract]
-    public class FilledWorkorderAndResources
-    {
-        [DataMember]
-        public Workorder Workorder;
-        [DataMember]
-        public WorkorderResources Resources;
-    }
-
-
     /// <summary>
     ///   The main interface to interact with workorders.
     /// </summary>
@@ -173,30 +156,6 @@ namespace BlackMaple.SeedOrders
                                     DateTime fillUTC,
                                     WorkorderResources resources
                                   );
-
-        /// <summary>
-        ///   Load history of all filled workorders with filled date between the given start and end time.
-        /// </summary>
-        /// <remarks>
-        ///   <para>
-        ///     Implementing this is optional.  It is used only for reports and displaying data to the user on some screens.  It is
-        ///     not required for the correct operation of the system.  If not all information about the workorders is
-        ///     stored, that is OK.  Load only what is stored.
-        ///   </para>
-        /// </remarks>
-        IEnumerable<FilledWorkorderAndResources> LoadFilledWorkordersByFilledDate(DateTime startUTC, DateTime endUTC);
-
-        /// <summary>
-        ///   Load history of all filled workorders with due date between the given start and end time.
-        /// </summary>
-        /// <remarks>
-        ///   <para>
-        ///     Implementing this is optional.  It is used only for reports and displaying data to the user on some screens.  It is
-        ///     not required for the correct operation of the system.  If not all information about the workorders is
-        ///     stored, that is OK.  Load only what is stored.
-        ///   </para>
-        /// </remarks>
-        IEnumerable<FilledWorkorderAndResources> LoadFilledWorkordersByDueDate(DateTime startD, DateTime endD);
     }
 
 }

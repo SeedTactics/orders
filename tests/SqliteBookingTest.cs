@@ -35,6 +35,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 using Xunit;
 using BlackMaple.SeedOrders;
 
@@ -112,6 +113,18 @@ namespace tests
 
         }
 
+        private IEnumerable<Booking> LoadScheduledBookings()
+        {
+            using (var context = new ExampleOrderIntegration.BookingContext())
+            {
+                return context.Bookings
+                    .Where(x => x.ScheduleId != null)
+                    .Include(x => x.Parts)
+                    .AsNoTracking()
+                    .ToList();
+            }
+        }
+
         [Fact]
         public void LoadUnscheduledStatus()
         {
@@ -175,18 +188,9 @@ namespace tests
             initialBookings[0].ScheduleId = "12345";
             initialBookings[1].ScheduleId = "12345";
 
-            //check loading schedules
-            Assert.Empty(booking.LoadSchedulesByDate(
-                new DateTime(2016, 01, 01), new DateTime(2016, 02, 02)));
-            booking.LoadSchedulesByDate(new DateTime(2016, 01, 01), new DateTime(2017, 12, 31))
-              .ShouldAllBeEquivalentTo(new Schedule
-              {
-                  ScheduleId = "12345",
-                  ScheduledTimeUTC = new DateTime(2016, 11, 05),
-                  ScheduledHorizon = TimeSpan.FromMinutes(155),
-                  Bookings = new List<Booking>(initialBookings.GetRange(0, 2)),
-                  DownloadedParts = new List<DownloadedPart>(downParts)
-              });
+            LoadScheduledBookings().ShouldAllBeEquivalentTo(
+                new Booking[] {initialBookings[0], initialBookings[1]}
+            );
         }
 
         [Fact]

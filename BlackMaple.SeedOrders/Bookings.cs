@@ -114,15 +114,11 @@ namespace BlackMaple.SeedOrders
         public int Quantity { get; set; }
     }
 
-    ///<summary>A <c>Schedule</c> is a collection of part demand that has been downloaded into the machine controller.</summary>
-    ///<remarks>
-    ///   <para>
-    ///   A schedule consists of the bookings completed by this schedule and the part quantities actually downloaded
-    ///   into the machine controller.
-    ///   </para>
+    /// <summary>Records a part that has been scheduled into the system but not attached to a <c>Booking</c></summary>
+    /// <remarks>
     ///   <para>
     ///   Sometimes a <c>Booking</c> can't be scheduled all at once.  When this is the case, the <c>Booking</c>
-    ///   will not be included in the first <c>Schedule</c> so the booking will be left in the unscheduled state.
+    ///   will not be included in the first schedule so the booking will be left in the unscheduled state.
     ///   Instead, some parts from the <c>Booking</c> will be included in the downloaded parts and also recorded in
     ///   a <c>ScheduledPartWithoutBooking</c>.  When the next schedule is generated, the remaining parts will be
     ///   produced and the booking will be marked scheduled at that time.
@@ -134,36 +130,6 @@ namespace BlackMaple.SeedOrders
     ///   realize that only 60 parts of ABC need to be produced.  This future schedule will therefore have 60 ABC parts to download, include
     ///   the booking as scheduled, and delete the <c>ScheduledPartWithoutBooking</c>.  OrderLink handles all this calculation internally,
     ///   so when writing the interface between OrderLink and your ERP system, you just need to store and retrieve this data.
-    ///   </para>
-    /// </remarks>
-    [DataContract]
-    public class Schedule
-    {
-        /// <summary>Each schedule is assigned a unique <c>Id</c> which is monotonically increasing.</summary>
-        [DataMember]
-        public string ScheduleId { get; set; }
-
-        /// <summary>The time in coordinated universal time (UTC) that the schedule was created.</summary>
-        [DataMember]
-        public DateTime ScheduledTimeUTC { get; set; }
-
-        /// <summary>The expected timespan to complete all demand for this schedule.</summary>
-        [DataMember]
-        public TimeSpan ScheduledHorizon { get; set; }
-
-        /// <summary>The bookings which can finally be marked as completed.</summary>
-        [DataMember]
-        public List<Booking> Bookings { get; set; }
-
-        /// <summary>The parts downloaded into the machine controller as part of this booking.</summary>
-        [DataMember]
-        public List<DownloadedPart> DownloadedParts { get; set; }
-    }
-
-    /// <summary>Records a part that has been scheduled into the system but not attached to a <c>Booking</c></summary>
-    /// <remarks>
-    ///   <para>
-    ///   Typically, these parts arise when an entire <c>Booking</c> can't be scheduled all at once.
     ///   </para>
     /// </remarks>
     [DataContract]
@@ -272,17 +238,6 @@ namespace BlackMaple.SeedOrders
         ///   </para>
         /// </remarks>
         void CreateSchedule(NewSchedule newData);
-
-        /// <summary>
-        ///   Load history of all scheduled bookings with scheduled date between the given start and end time.
-        /// </summary>
-        /// <remarks>
-        ///   <para>
-        ///     Implementing this is optional.  It is used only for reports and displaying data to the user on some screens.  It is
-        ///     not required for the correct operation of the system.
-        ///   </para>
-        /// </remarks>
-        IEnumerable<Schedule> LoadSchedulesByDate(DateTime startUTC, DateTime endUTC);
 
         /// <summary>
         ///  Deal with scheduled parts that are removed from the cell controller.

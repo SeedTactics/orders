@@ -313,10 +313,5 @@ namespace BlackMaple.CSVOrders
                 }
             }
         }
-
-        public IEnumerable<Schedule> LoadSchedulesByDate(DateTime startUTC, DateTime endUTC)
-        {
-            return new Schedule[] { };
-        }
     }
 }

@@ -14,7 +14,6 @@ namespace ExampleOrderIntegration
         }
 
         public DbSet<Booking> Bookings { get; set; }
-        public DbSet<Schedule> Schedules { get; set; }
         public DbSet<ScheduledPartWithoutBooking> ExtraParts { get; set; }
         public DbSet<LatestBackoutIdSingleton> LatestBackoutId {get;set;}
 
@@ -31,8 +30,6 @@ namespace ExampleOrderIntegration
               .HasKey(p => new { p.ScheduleId, p.Part });
             m.Entity<ScheduledPartWithoutBooking>()
               .HasKey(p => p.Part);
-            m.Entity<Schedule>()
-              .HasIndex(s => s.ScheduledTimeUTC);
             m.Entity<LatestBackoutIdSingleton>()
               .HasKey(x => x.BackoutId);
         }
@@ -66,15 +63,7 @@ namespace ExampleOrderIntegration
         {
             using (var context = new BookingContext())
             {
-                context.Schedules.Add(new Schedule
-                {
-                    ScheduleId = s.ScheduleId,
-                    ScheduledTimeUTC = s.ScheduledTimeUTC,
-                    ScheduledHorizon = s.ScheduledHorizon,
-                    DownloadedParts = s.DownloadedParts,
-                    Bookings = null
-                }
-                );
+                //Update the bookings and extra parts tables.
 
                 foreach (var bookingId in s.BookingIds)
                 {
@@ -103,21 +92,11 @@ namespace ExampleOrderIntegration
                     context.ExtraParts.Remove(p.Value);
                 }
 
-                context.SaveChanges();
-            }
-        }
+                //In addition to the above data, you could also store data about the schedule itself
+                //in a schedule table, but keeping data about the schedule itself is not required for
+                //implementing the booking plugin and would just be for your own internal use.
 
-        public IEnumerable<Schedule> LoadSchedulesByDate(DateTime startUTC, DateTime endUTC)
-        {
-            using (var context = new BookingContext())
-            {
-                return context.Schedules
-                  .Where(s => s.ScheduledTimeUTC >= startUTC && s.ScheduledTimeUTC <= endUTC)
-                  .Include(s => s.Bookings)
-                    .ThenInclude(b => b.Parts)
-                  .Include(s => s.DownloadedParts)
-                  .AsNoTracking()
-                  .ToList();
+                context.SaveChanges();
             }
         }
 

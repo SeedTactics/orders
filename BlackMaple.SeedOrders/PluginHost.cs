@@ -106,12 +106,6 @@ namespace BlackMaple.SeedOrders
             _bookings.CreateSchedule(DecJson<NewSchedule>(newScheduleJson));
         }
 
-        public string LoadSchedulesByDateJson(DateTime startUTC, DateTime endUTC)
-        {
-            if (_bookings == null) throw new Exception("Plugin does not implement booking API");
-            return EncJson(_bookings.LoadSchedulesByDate(startUTC, endUTC));
-        }
-
         public void HandleBackedOutWork(string backoutId, string backedOutParts)
         {
             if (_bookings == null) throw new Exception("Plugin does not implement booking API");
@@ -139,18 +133,6 @@ namespace BlackMaple.SeedOrders
         {
             if (_workorders == null) throw new Exception("Plugin does not implement workorder API");
             _workorders.MarkWorkorderAsFilled(workorderId, fillUTC, DecJson<WorkorderResources>(resourcesJson));
-        }
-
-        public string LoadFilledWorkordersByFilledDateJson(DateTime startUTC, DateTime endUTC)
-        {
-            if (_workorders == null) throw new Exception("Plugin does not implement workorder API");
-            return EncJson(_workorders.LoadFilledWorkordersByFilledDate(startUTC, endUTC));
-        }
-
-        public string LoadFilledWorkordersByDueDateJson(DateTime startD, DateTime endD)
-        {
-            if (_workorders == null) throw new Exception("Plugin does not implement workorder API");
-            return EncJson(_workorders.LoadFilledWorkordersByDueDate(startD, endD));
         }
         #endregion
     }
