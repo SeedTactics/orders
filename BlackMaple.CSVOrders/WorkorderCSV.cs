@@ -199,5 +199,15 @@ namespace BlackMaple.CSVOrders
                 }
             }
         }
+
+        public IEnumerable<FilledWorkorderAndResources> LoadFilledWorkordersByFilledDate(DateTime startUTC, DateTime endUTC)
+        {
+            return new FilledWorkorderAndResources[] { };
+        }
+
+        public IEnumerable<FilledWorkorderAndResources> LoadFilledWorkordersByDueDate(DateTime startUTC, DateTime endUTC)
+        {
+            return new FilledWorkorderAndResources[] { };
+        }
     }
 }

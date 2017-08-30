@@ -34,8 +34,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 using System;
 using System.Collections.Generic;
 using FluentAssertions;
-using System.Linq;
-using Microsoft.EntityFrameworkCore;
 using Xunit;
 using BlackMaple.SeedOrders;
 
@@ -95,18 +93,6 @@ namespace tests
 
         }
 
-        private IEnumerable<Workorder> LoadFilledWorkorders()
-        {
-            using (var context = new ExampleOrderIntegration.WorkorderContext())
-            {
-                return context.Workorders
-                  .Where(w => w.FilledUTC != null)
-                  .Include(w => w.Parts)
-                  .AsNoTracking()
-                  .ToList();
-            }
-        }
-
         [Fact]
         public void LoadUnfilled()
         {
@@ -132,10 +118,14 @@ namespace tests
             workDB.LoadUnfilledWorkorders("part3")
               .ShouldAllBeEquivalentTo(new Workorder[] {initialWorkorders[2]});
 
-            initialWorkorders[0].FilledUTC = new DateTime(2016, 11, 05);
+            var filled = new FilledWorkorderAndResources
+              { Workorder = initialWorkorders[0]};
+            filled.Workorder.FilledUTC = new DateTime(2016, 11, 05);
 
-            LoadFilledWorkorders()
-              .ShouldAllBeEquivalentTo(new [] {initialWorkorders[0]});
+            workDB.LoadFilledWorkordersByFilledDate(new DateTime(2016, 01, 01), new DateTime(2016, 12, 01))
+              .ShouldAllBeEquivalentTo(new FilledWorkorderAndResources[] {filled});
+            workDB.LoadFilledWorkordersByDueDate(new DateTime(2017, 01, 01), new DateTime(2018, 01, 01))
+              .ShouldAllBeEquivalentTo(new FilledWorkorderAndResources[] {filled});
         }
     }
 }
