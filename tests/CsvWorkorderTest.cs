@@ -116,8 +116,7 @@ namespace tests
         public void FillWorkorder()
         {
             var workDB = new BlackMaple.CSVOrders.WorkorderCSV();
-            workDB.MarkWorkorderAsFilled("work1", new DateTime(2016, 11, 05),
-              new WorkorderResources
+            var newRes =  new WorkorderResources
               {
                   Serials = new List<string> { "serial1", "serial2" },
                   ActualOperationTimes = new Dictionary<string, TimeSpan>
@@ -130,21 +129,29 @@ namespace tests
                         { "stat1", TimeSpan.FromMinutes(105)},
                         { "stat2", TimeSpan.FromMinutes(200)}
                     }
-              });
+              };
+            workDB.MarkWorkorderAsFilled("work1", new DateTime(2016, 11, 05, 4, 12, 33, DateTimeKind.Utc), newRes);
 
             workDB.LoadUnfilledWorkorders()
               .ShouldAllBeEquivalentTo(initialWorkorders.GetRange(1, 2));
             workDB.LoadUnfilledWorkorders("part3")
               .ShouldAllBeEquivalentTo(new Workorder[] { initialWorkorders[2] });
 
-            var lines = File.ReadAllLines("filled-workorders/work1.csv");
+            var lines = File.ReadAllLines("filled-workorders/work1_2016-11-05_2017-01-01.csv");
             Assert.Equal(2, lines.Count());
-            Assert.Equal("CompletedTimeUTC,ID,Part,Quantity,Actual stat1 (minutes),Actual stat2 (minutes),Planned stat1 (minutes),Planned stat2 (minutes)", lines[0]);
-            
-            //only check date, not time
-            int idx = lines[1].IndexOf(",");
-            Assert.Equal(DateTime.UtcNow.ToString("yyyy-MM-ddT"), lines[1].Substring(0, 11));
-            Assert.Equal("work1,part1;part2,44;66,15,20,105,200", lines[1].Substring(idx+1));
+            Assert.Equal("CompletedTimeUTC,ID,DueDate,Priority,Part,Quantity,Serials,Actual stat1 (minutes),Actual stat2 (minutes),Planned stat1 (minutes),Planned stat2 (minutes)", lines[0]);
+            Assert.Equal("2016-11-05T04:12:33Z,work1,2017-01-01,100,part1;part2,44;66,serial1;serial2,15,20,105,200", lines[1]);
+
+
+            var filled = new FilledWorkorderAndResources
+              { Workorder = initialWorkorders[0],
+                Resources = newRes
+              };
+            filled.Workorder.FilledUTC = new DateTime(2016, 11, 05, 4, 12, 33, DateTimeKind.Utc);
+            workDB.LoadFilledWorkordersByFilledDate(new DateTime(2016, 01, 01), new DateTime(2016, 12, 01))
+              .ShouldAllBeEquivalentTo(new FilledWorkorderAndResources[] {filled});
+            workDB.LoadFilledWorkordersByDueDate(new DateTime(2017, 01, 01), new DateTime(2018, 01, 01))
+              .ShouldAllBeEquivalentTo(new FilledWorkorderAndResources[] {filled});
         }
     }
 }
