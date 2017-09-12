@@ -98,6 +98,42 @@ namespace BlackMaple.SeedOrders
     }
 
     /// <summary>
+    /// The resources used by a single part in a filled workorder
+    /// </summary>
+    [DataContract]
+    public class WorkorderPartResources
+    {
+        [DataMember]
+        public string Part { get; set; }
+
+        [DataMember]
+        public int PartsCompleted { get; set; }
+
+        /// <summary>The elapsed wall clock time used by the parts in this workorder at each station</summary>
+        /// <remarks>
+        ///   <para>
+        ///   The key of the dictionary is the station name, the value is the sum of the amount of time spent at this
+        ///   station over all serials assigned to this workorder.  The time is wall-clock time from cycle start
+        ///   to cycle end, so includes time that the station is idle (for example, if the program is interrupted).
+        ///   </para>
+        /// </remarks>
+        [DataMember]
+        public Dictionary<string, TimeSpan> ElapsedOperationTime { get; set; }
+
+        /// <summary>The active time used by the parts in this workorder at each station</summary>
+        /// <remarks>
+        ///   <para>
+        ///   The key of the dictionary is the station name, the value is the amount of time
+        ///   that a part spends at this station with some active operation occuring, summed over
+        ///   all serials assigned to this workorder.  The active time will be smaller than the elapsed time
+        ///   if for example the program is interrupted or some other interruption occurs.
+        ///   </para>
+        /// </remarks>
+        [DataMember]
+        public Dictionary<string, TimeSpan> ActiveOperationTime { get; set; }
+    }
+
+    /// <summary>
     ///   A <c>WorkorderResources</c> summarizes the execution of the parts assigned to the workorder.
     /// </summary>
     [DataContract]
@@ -107,25 +143,9 @@ namespace BlackMaple.SeedOrders
         [DataMember]
         public List<string> Serials { get; set; }
 
-        /// <summary>The actual times used by the parts in this workorder at each station</summary>
-        /// <remarks>
-        ///   <para>
-        ///   The key of the dictionary is the station name, the value is the sum of the amount of time spent at this station
-        ///   over all serials assigned to this workorder.
-        ///   </para>
-        /// </remarks>
+        ///<summary>The completed counts and operation times for parts assigned to this workorder</summary>
         [DataMember]
-        public Dictionary<string, TimeSpan> ActualOperationTimes { get; set; }
-
-        /// <summary>The planned times used by the parts in this workorder at each station</summary>
-        /// <remarks>
-        ///   <para>
-        ///   The key of the dictionary is the station name, the value is the sum of the amount of time the model shows
-        ///   that the part should spend at this station over all serials assigned to this workorder.
-        ///   </para>
-        /// </remarks>
-        [DataMember]
-        public Dictionary<string, TimeSpan> PlannedOperationTimes { get; set; }
+        public List<WorkorderPartResources> Parts { get; set; }
     }
 
     /// <summary>

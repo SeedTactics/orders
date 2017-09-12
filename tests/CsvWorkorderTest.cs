@@ -119,17 +119,42 @@ namespace tests
             workDB.MarkWorkorderAsFilled("work1", new DateTime(2016, 11, 05, 3, 44, 52, DateTimeKind.Utc),
               new WorkorderResources
               {
-                  Serials = new List<string> { "serial1", "serial2" },
-                  ActualOperationTimes = new Dictionary<string, TimeSpan>
-                    {
-                        { "stat1", TimeSpan.FromMinutes(15)},
-                        { "stat2", TimeSpan.FromMinutes(20)}
-                    },
-                    PlannedOperationTimes = new Dictionary<string, TimeSpan>
-                    {
-                        { "stat1", TimeSpan.FromMinutes(105)},
-                        { "stat2", TimeSpan.FromMinutes(200)}
-                    }
+                Serials = new List<string> { "serial1", "serial2" },
+                Parts = new List<WorkorderPartResources>
+                {
+                    new WorkorderPartResources
+                      {
+                        Part = "part1",
+                        PartsCompleted = 44,
+                        ActiveOperationTime = new Dictionary<string, TimeSpan>
+                        {
+                            { "stat1", TimeSpan.FromMinutes(105)},
+                            { "stat2", TimeSpan.FromMinutes(107)}
+                        },
+                        ElapsedOperationTime = new Dictionary<string, TimeSpan>
+                        {
+                            { "stat1", TimeSpan.FromMinutes(201)},
+                            { "stat2", TimeSpan.FromMinutes(210)},
+                            { "stat3", TimeSpan.FromMinutes(222)}
+                        }
+                      },
+                    new WorkorderPartResources
+                      {
+                        Part = "part2",
+                        PartsCompleted = 55,
+                        ActiveOperationTime = new Dictionary<string, TimeSpan>
+                        {
+                            { "stat1", TimeSpan.FromMinutes(301)},
+                            { "stat2", TimeSpan.FromMinutes(311)},
+                            { "stat3", TimeSpan.FromMinutes(333)}
+                        },
+                        ElapsedOperationTime = new Dictionary<string, TimeSpan>
+                        {
+                            { "stat1", TimeSpan.FromMinutes(422)},
+                            { "stat2", TimeSpan.FromMinutes(462)}
+                        }
+                      }
+                }
               });
 
             workDB.LoadUnfilledWorkorders()
@@ -138,9 +163,10 @@ namespace tests
               .ShouldAllBeEquivalentTo(new Workorder[] { initialWorkorders[2] });
 
             var lines = File.ReadAllLines("filled-workorders/work1.csv");
-            Assert.Equal(2, lines.Count());
-            Assert.Equal("CompletedTimeUTC,ID,Part,Quantity,Serials,Actual stat1 (minutes),Actual stat2 (minutes),Planned stat1 (minutes),Planned stat2 (minutes)", lines[0]);
-            Assert.Equal("2016-11-05T03:44:52Z,work1,part1;part2,44;66,serial1;serial2,15,20,105,200", lines[1]);
+            Assert.Equal(3, lines.Count());
+            Assert.Equal("CompletedTimeUTC,ID,Part,Quantity,Serials,Active stat1 (minutes),Active stat2 (minutes),Active stat3 (minutes),Elapsed stat1 (minutes),Elapsed stat2 (minutes),Elapsed stat3 (minutes)", lines[0]);
+            Assert.Equal("2016-11-05T03:44:52Z,work1,part1,44,serial1;serial2,105,107,0,201,210,222", lines[1]);
+            Assert.Equal("2016-11-05T03:44:52Z,work1,part2,55,serial1;serial2,301,311,333,422,462,0", lines[2]);
         }
     }
 }

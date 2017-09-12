@@ -135,10 +135,6 @@ namespace BlackMaple.CSVOrders
                                           DateTime filledUTC,
                                           WorkorderResources resources)
         {
-            var workorders = LoadUnfilledWorkordersMap();
-            if (!workorders.ContainsKey(workorderId)) return;
-            var work = workorders[workorderId];
-
             if (!Directory.Exists(Path.Combine(CSVBasePath, FilledWorkordersPath)))
             {
                 Directory.CreateDirectory(Path.Combine(CSVBasePath, FilledWorkordersPath));
@@ -155,48 +151,52 @@ namespace BlackMaple.CSVOrders
                     csv.WriteField("Quantity");
                     csv.WriteField("Serials");
 
-                    var actualKeys = resources.ActualOperationTimes.Keys.ToList();
+                    var activeStations = new HashSet<string>();
+                    var elapsedStations = new HashSet<string>();
+                    foreach (var p in resources.Parts)
+                    {
+                        foreach (var k in p.ActiveOperationTime.Keys)
+                            activeStations.Add(k);
+                        foreach (var k in p.ElapsedOperationTime.Keys)
+                            elapsedStations.Add(k);
+                    }
+
+                    var actualKeys = activeStations.OrderBy(x => x).ToList();
                     foreach (var k in actualKeys)
                     {
-                        csv.WriteField("Actual " + k + " (minutes)");
+                        csv.WriteField("Active " + k + " (minutes)");
                     }
-                    var plannedKeys = resources.PlannedOperationTimes.Keys.ToList();
+                    var plannedKeys = elapsedStations.OrderBy(x => x).ToList();
                     foreach (var k in plannedKeys)
                     {
-                        csv.WriteField("Planned " + k + " (minutes)");
+                        csv.WriteField("Elapsed " + k + " (minutes)");
                     }
                     csv.NextRecord();
 
-                    string parts = "";
-                    string qtys = "";
-                    foreach (var p in work.Parts)
+                    foreach (var p in resources.Parts)
                     {
-                        if (parts == "")
-                        {
-                            parts = p.Part;
-                            qtys = p.Quantity.ToString();
-                        }
-                        else
-                        {
-                            parts += ";" + p.Part;
-                            qtys += ";" + p.Quantity.ToString();
-                        }
-                    }
-                    csv.WriteField(filledUTC.ToString("yyyy-MM-ddTHH:mm:ssZ"));
-                    csv.WriteField(workorderId);
-                    csv.WriteField(parts);
-                    csv.WriteField(qtys);
-                    csv.WriteField(string.Join(";", resources.Serials));
+                        csv.WriteField(filledUTC.ToString("yyyy-MM-ddTHH:mm:ssZ"));
+                        csv.WriteField(workorderId);
+                        csv.WriteField(p.Part);
+                        csv.WriteField(p.PartsCompleted);
+                        csv.WriteField(string.Join(";", resources.Serials));
 
-                    foreach (var k in actualKeys)
-                    {
-                        csv.WriteField(resources.ActualOperationTimes[k].TotalMinutes);
+                        foreach (var k in actualKeys)
+                        {
+                            if (p.ActiveOperationTime.ContainsKey(k))
+                                csv.WriteField(p.ActiveOperationTime[k].TotalMinutes);
+                            else
+                                csv.WriteField(0);
+                        }
+                        foreach (var k in plannedKeys)
+                        {
+                            if (p.ElapsedOperationTime.ContainsKey(k))
+                                csv.WriteField(p.ElapsedOperationTime[k].TotalMinutes);
+                            else
+                                csv.WriteField(0);
+                        }
+                        csv.NextRecord();
                     }
-                    foreach (var k in plannedKeys)
-                    {
-                        csv.WriteField(resources.PlannedOperationTimes[k].TotalMinutes);
-                    }
-                    csv.NextRecord();
                 }
             }
         }
