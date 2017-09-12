@@ -116,7 +116,7 @@ namespace tests
         public void FillWorkorder()
         {
             var workDB = new BlackMaple.CSVOrders.WorkorderCSV();
-            workDB.MarkWorkorderAsFilled("work1", new DateTime(2016, 11, 05),
+            workDB.MarkWorkorderAsFilled("work1", new DateTime(2016, 11, 05, 3, 44, 52, DateTimeKind.Utc),
               new WorkorderResources
               {
                   Serials = new List<string> { "serial1", "serial2" },
@@ -139,12 +139,8 @@ namespace tests
 
             var lines = File.ReadAllLines("filled-workorders/work1.csv");
             Assert.Equal(2, lines.Count());
-            Assert.Equal("CompletedTimeUTC,ID,Part,Quantity,Actual stat1 (minutes),Actual stat2 (minutes),Planned stat1 (minutes),Planned stat2 (minutes)", lines[0]);
-            
-            //only check date, not time
-            int idx = lines[1].IndexOf(",");
-            Assert.Equal(DateTime.UtcNow.ToString("yyyy-MM-ddT"), lines[1].Substring(0, 11));
-            Assert.Equal("work1,part1;part2,44;66,15,20,105,200", lines[1].Substring(idx+1));
+            Assert.Equal("CompletedTimeUTC,ID,Part,Quantity,Serials,Actual stat1 (minutes),Actual stat2 (minutes),Planned stat1 (minutes),Planned stat2 (minutes)", lines[0]);
+            Assert.Equal("2016-11-05T03:44:52Z,work1,part1;part2,44;66,serial1;serial2,15,20,105,200", lines[1]);
         }
     }
 }

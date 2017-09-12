@@ -138,7 +138,6 @@ namespace BlackMaple.CSVOrders
             var workorders = LoadUnfilledWorkordersMap();
             if (!workorders.ContainsKey(workorderId)) return;
             var work = workorders[workorderId];
-            var now = DateTime.UtcNow;
 
             if (!Directory.Exists(Path.Combine(CSVBasePath, FilledWorkordersPath)))
             {
@@ -154,6 +153,7 @@ namespace BlackMaple.CSVOrders
                     csv.WriteField("ID");
                     csv.WriteField("Part");
                     csv.WriteField("Quantity");
+                    csv.WriteField("Serials");
 
                     var actualKeys = resources.ActualOperationTimes.Keys.ToList();
                     foreach (var k in actualKeys)
@@ -182,10 +182,11 @@ namespace BlackMaple.CSVOrders
                             qtys += ";" + p.Quantity.ToString();
                         }
                     }
-                    csv.WriteField(now.ToString("yyyy-MM-ddTHH:mm:ssZ"));
+                    csv.WriteField(filledUTC.ToString("yyyy-MM-ddTHH:mm:ssZ"));
                     csv.WriteField(workorderId);
                     csv.WriteField(parts);
                     csv.WriteField(qtys);
+                    csv.WriteField(string.Join(";", resources.Serials));
 
                     foreach (var k in actualKeys)
                     {
