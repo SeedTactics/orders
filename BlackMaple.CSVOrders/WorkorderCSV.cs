@@ -36,7 +36,6 @@ using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using BlackMaple.SeedOrders;
-using System.Globalization;
 
 namespace BlackMaple.CSVOrders
 {
@@ -111,15 +110,12 @@ namespace BlackMaple.CSVOrders
                 }
             }
 
-            var filledDir = Path.Combine(CSVBasePath, FilledWorkordersPath);
-            if (Directory.Exists(filledDir))
+            foreach (var id in workorderMap.Keys.ToList())
             {
-                foreach (var id in workorderMap.Keys.ToList())
+                var f = Path.Combine(CSVBasePath, Path.Combine(FilledWorkordersPath, id + ".csv"));
+                if (File.Exists(f))
                 {
-                    if (Directory.GetFiles(filledDir, id + "_2*.csv").Length > 0)
-                    {
-                        workorderMap.Remove(id);
-                    }
+                    workorderMap.Remove(id);
                 }
             }
             return workorderMap;
@@ -142,26 +138,22 @@ namespace BlackMaple.CSVOrders
             var workorders = LoadUnfilledWorkordersMap();
             if (!workorders.ContainsKey(workorderId)) return;
             var work = workorders[workorderId];
+            var now = DateTime.UtcNow;
 
             if (!Directory.Exists(Path.Combine(CSVBasePath, FilledWorkordersPath)))
             {
                 Directory.CreateDirectory(Path.Combine(CSVBasePath, FilledWorkordersPath));
             }
 
-            var filename = workorderId + "_" + filledUTC.ToString("yyyy-MM-dd") + "_" + work.DueDate.ToString("yyyy-MM-dd") + ".csv";
-            using (var f = File.OpenWrite(Path.Combine(CSVBasePath, Path.Combine(FilledWorkordersPath, filename))))
+            using (var f = File.OpenWrite(Path.Combine(CSVBasePath, Path.Combine(FilledWorkordersPath, workorderId + ".csv"))))
             {
                 using (var stream = new StreamWriter(f))
                 {
                     var csv = new CsvHelper.CsvWriter(stream);
                     csv.WriteField("CompletedTimeUTC");
                     csv.WriteField("ID");
-                    csv.WriteField("DueDate");
-                    csv.WriteField("Priority");
                     csv.WriteField("Part");
                     csv.WriteField("Quantity");
-                    csv.WriteField("Serials");
-
 
                     var actualKeys = resources.ActualOperationTimes.Keys.ToList();
                     foreach (var k in actualKeys)
@@ -190,13 +182,10 @@ namespace BlackMaple.CSVOrders
                             qtys += ";" + p.Quantity.ToString();
                         }
                     }
-                    csv.WriteField(filledUTC.ToString("yyyy-MM-ddTHH:mm:ssZ"));
+                    csv.WriteField(now.ToString("yyyy-MM-ddTHH:mm:ssZ"));
                     csv.WriteField(workorderId);
-                    csv.WriteField(work.DueDate.ToString("yyyy-MM-dd"));
-                    csv.WriteField(work.Priority);
                     csv.WriteField(parts);
                     csv.WriteField(qtys);
-                    csv.WriteField(string.Join(";", resources.Serials));
 
                     foreach (var k in actualKeys)
                     {
@@ -211,110 +200,14 @@ namespace BlackMaple.CSVOrders
             }
         }
 
-        private FilledWorkorderAndResources ParseWorkorderFile(string file)
-        {
-            using (var f = File.OpenRead(file))
-            {
-                var reader = new CsvHelper.CsvReader(new StreamReader(f));
-                reader.ReadHeader();
-                var hdrs = reader.FieldHeaders;
-                if (!reader.Read()) return null;
-
-                var workId = reader.GetField<string>(1);
-                var filled = DateTime.ParseExact(reader.GetField<string>(0), "yyyy-MM-ddTHH:mm:ssZ", DateTimeFormatInfo.InvariantInfo, DateTimeStyles.AdjustToUniversal);
-
-                var ret = new FilledWorkorderAndResources();
-                ret.Workorder = new Workorder
-                {
-                    WorkorderId = workId,
-                    DueDate = DateTime.ParseExact(reader.GetField<string>(2), "yyyy-MM-dd", null),
-                    Priority = reader.GetField<int>(3),
-                    FilledUTC = filled,
-                    Parts = Enumerable.Zip
-                               (reader.GetField<string>(4).Split(';'), reader.GetField<string>(5).Split(';'),
-                                (part, qty) => new WorkorderDemand { WorkorderId = workId, Part = part, Quantity = int.Parse(qty) }
-                               ).ToList()
-                };
-                ret.Resources = new WorkorderResources
-                {
-                    Serials = reader.GetField<string>(6).Split(';').ToList(),
-                    ActualOperationTimes = new Dictionary<string, TimeSpan>(),
-                    PlannedOperationTimes = new Dictionary<string, TimeSpan>()
-                };
-
-                for (int col = 7; col < hdrs.Length; col++)
-                {
-                    if (hdrs[col].StartsWith("Actual "))
-                    {
-                        //Actual<space> has length 7
-                        //<space>(minutes) has length 10
-                        var key = hdrs[col].Substring(7, hdrs[col].Length - 17);
-                        ret.Resources.ActualOperationTimes.Add(key, TimeSpan.FromMinutes(reader.GetField<int>(col)));
-                    }
-                    else if (hdrs[col].StartsWith("Planned "))
-                    {
-                        //Planned<space> has length 8
-                        //<space>(minutes) has length 10
-                        var key = hdrs[col].Substring(8, hdrs[col].Length - 18);
-                        ret.Resources.PlannedOperationTimes.Add(key, TimeSpan.FromMinutes(reader.GetField<int>(col)));
-                    }
-                }
-
-                return ret;
-            }
-        }
-
         public IEnumerable<FilledWorkorderAndResources> LoadFilledWorkordersByFilledDate(DateTime startUTC, DateTime endUTC)
         {
-            var filledDir = Path.Combine(CSVBasePath, FilledWorkordersPath);
-            var files = Directory.GetFiles(filledDir);
-            var startUTCDay = startUTC.ToString("yyyy-MM-dd");
-            var endUTCDay = (endUTC.AddDays(1)).ToString("yyyy-MM-dd");
-
-            return Directory.GetFiles(filledDir, "*.csv")
-              .Select(f =>
-              {
-                  var entries = f.Split('_');
-                  if (entries.Length >= 3)
-                      return new
-                      {
-                          FilledDate = entries[entries.Length - 2],
-                          FileName = f
-                      };
-                  else
-                      throw new Exception("Unknown file " + f);
-              })
-              .SkipWhile(x => x.FilledDate.CompareTo(startUTCDay) < 0)
-              .TakeWhile(x => x.FilledDate.CompareTo(endUTCDay) <= 0)
-              .Select(x => ParseWorkorderFile(x.FileName))
-              .Where(x => startUTC <= x.Workorder.FilledUTC && x.Workorder.FilledUTC <= endUTC)
-              ;
+            return new FilledWorkorderAndResources[] { };
         }
 
-        public IEnumerable<FilledWorkorderAndResources> LoadFilledWorkordersByDueDate(DateTime startDay, DateTime endDay)
+        public IEnumerable<FilledWorkorderAndResources> LoadFilledWorkordersByDueDate(DateTime startUTC, DateTime endUTC)
         {
-            var filledDir = Path.Combine(CSVBasePath, FilledWorkordersPath);
-            var files = Directory.GetFiles(filledDir);
-            var startDayStr = startDay.ToString("yyyy-MM-dd");
-            var endDayStr = endDay.ToString("yyyy-MM-dd");
-
-            return Directory.GetFiles(filledDir, "*.csv")
-              .Select(f =>
-              {
-                  var entries = f.Split('_');
-                  if (entries.Length >= 3)
-                      return new
-                      {
-                          DueDate = entries[entries.Length - 1],
-                          FileName = f
-                      };
-                  else
-                      throw new Exception("Unknown file " + f);
-              })
-              .SkipWhile(x => x.DueDate.CompareTo(startDayStr) < 0)
-              .TakeWhile(x => x.DueDate.CompareTo(endDayStr) <= 0)
-              .Select(x => ParseWorkorderFile(x.FileName))
-              ;
+            return new FilledWorkorderAndResources[] { };
         }
     }
 }
