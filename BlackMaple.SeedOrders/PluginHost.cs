@@ -134,18 +134,6 @@ namespace BlackMaple.SeedOrders
             if (_workorders == null) throw new Exception("Plugin does not implement workorder API");
             _workorders.MarkWorkorderAsFilled(workorderId, fillUTC, DecJson<WorkorderResources>(resourcesJson));
         }
-
-        public string LoadFilledWorkordersByFilledDateJson(DateTime startUTC, DateTime endUTC)
-        {
-            if (_workorders == null) throw new Exception("Plugin does not implement workorder API");
-            return EncJson(_workorders.LoadFilledWorkordersByFilledDate(startUTC, endUTC));
-        }
-
-        public string LoadFilledWorkordersByDueDateJson(DateTime startD, DateTime endD)
-        {
-            if (_workorders == null) throw new Exception("Plugin does not implement workorder API");
-            return EncJson(_workorders.LoadFilledWorkordersByDueDate(startD, endD));
-        }
         #endregion
     }
 }

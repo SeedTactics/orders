@@ -63,34 +63,11 @@ namespace ExampleOrderIntegration
                     .Single(x => x.WorkorderId == workorderId);
                 if (work != null) {
                     work.FilledUTC = fillUTC;
+
+                    //You will likely also want to store the WorkorderResources somewhere.
+
                     context.SaveChanges();
                 }
-            }
-        }
-
-        public IEnumerable<FilledWorkorderAndResources> LoadFilledWorkordersByFilledDate(DateTime startUTC, DateTime endUTC)
-        {
-            using (var context = new WorkorderContext())
-            {
-                return context.Workorders
-                  .Where(w => w.FilledUTC >= startUTC && w.FilledUTC <= endUTC)
-                  .Include(w => w.Parts)
-                  .AsNoTracking()
-                  .Select(w => new FilledWorkorderAndResources { Workorder = w})
-                  .ToList();
-            }
-        }
-
-        public IEnumerable<FilledWorkorderAndResources> LoadFilledWorkordersByDueDate(DateTime startD, DateTime endD)
-        {
-            using (var context = new WorkorderContext())
-            {
-                return context.Workorders
-                  .Where(w => w.DueDate >= startD && w.DueDate <= endD && w.FilledUTC != null)
-                  .Include(w => w.Parts)
-                  .AsNoTracking()
-                  .Select(w => new FilledWorkorderAndResources { Workorder = w})
-                  .ToList();
             }
         }
     }
