@@ -3,7 +3,7 @@
   <PropertyGroup>
     <PackageId>BlackMaple.SeedOrders</PackageId>
     <AssemblyName>BlackMaple.SeedOrders</AssemblyName>
-    <VersionPrefix>2.3.0</VersionPrefix>
+    <VersionPrefix>2.4.0</VersionPrefix>
 
     <Title>SeedTactics Order API</Title>
     <Company>Black Maple Software, LLC</Company>
