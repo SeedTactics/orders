@@ -3,7 +3,7 @@
   <PropertyGroup>
     <PackageId>BlackMaple.CSVOrders</PackageId>
     <AssemblyName>BlackMaple.CSVOrders</AssemblyName>
-    <VersionPrefix>2.5.1</VersionPrefix>
+    <VersionPrefix>2.6.0</VersionPrefix>
 
     <Title>SeedTactics OrderLink - CSV Order Plugin</Title>
     <Company>Black Maple Software, LLC</Company>
