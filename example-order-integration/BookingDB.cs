@@ -127,7 +127,8 @@ namespace ExampleOrderIntegration
                             {
                                 BookingId = bookingId,
                                 Part = p.Part,
-                                Quantity = p.Quantity
+                                Quantity = p.Quantity,
+                                AvailableMaterial = 0
                             }
                         }
                     });

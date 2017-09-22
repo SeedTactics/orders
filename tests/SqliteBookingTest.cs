@@ -66,8 +66,8 @@ namespace tests
                     DueDate = new DateTime(2017, 01, 01),
                     ScheduleId = null,
                     Parts = new List<BookingDemand> {
-                        new BookingDemand { BookingId = "booking1", Part = "part1", Quantity = 44},
-                        new BookingDemand { BookingId = "booking1", Part = "part2", Quantity = 66}
+                        new BookingDemand { BookingId = "booking1", Part = "part1", Quantity = 44, AvailableMaterial = 44},
+                        new BookingDemand { BookingId = "booking1", Part = "part2", Quantity = 66, AvailableMaterial = 50}
                      }
                 });
                 initialBookings.Add(new Booking
@@ -77,8 +77,8 @@ namespace tests
                     DueDate = new DateTime(2017, 02, 02),
                     ScheduleId = null,
                     Parts = new List<BookingDemand> {
-                        new BookingDemand { BookingId = "booking2", Part = "part1", Quantity = 55},
-                        new BookingDemand { BookingId = "booking2", Part = "part2", Quantity = 77}
+                        new BookingDemand { BookingId = "booking2", Part = "part1", Quantity = 55, AvailableMaterial = 40},
+                        new BookingDemand { BookingId = "booking2", Part = "part2", Quantity = 77, AvailableMaterial = 0}
                      }
                 });
                 initialBookings.Add(new Booking
@@ -88,8 +88,8 @@ namespace tests
                     DueDate = new DateTime(2017, 03, 03),
                     ScheduleId = null,
                     Parts = new List<BookingDemand> {
-                        new BookingDemand { BookingId = "booking3", Part = "part1", Quantity = 111},
-                        new BookingDemand { BookingId = "booking3", Part = "part3", Quantity = 222}
+                        new BookingDemand { BookingId = "booking3", Part = "part1", Quantity = 111, AvailableMaterial = 102},
+                        new BookingDemand { BookingId = "booking3", Part = "part3", Quantity = 222, AvailableMaterial = 211}
                      }
                 });
 
@@ -221,7 +221,8 @@ namespace tests
                     {
                         BookingId = bookingId,
                         Part = "abc",
-                        Quantity = 23
+                        Quantity = 23,
+                        AvailableMaterial = 0
                     }
                 }
             });
@@ -237,7 +238,8 @@ namespace tests
                     {
                         BookingId = bookingId,
                         Part = "def",
-                        Quantity = 193
+                        Quantity = 193,
+                        AvailableMaterial = 0
                     }
                 }
             });

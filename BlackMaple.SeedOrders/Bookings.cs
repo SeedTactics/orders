@@ -50,6 +50,9 @@ namespace BlackMaple.SeedOrders
 
         [DataMember]
         public int Quantity { get; set; }
+
+        [DataMember]
+        public int AvailableMaterial { get; set; }
     }
 
     /// <summary>A <c>Booking</c> is an order used for scheduling.</summary>
