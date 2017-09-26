@@ -68,7 +68,6 @@ namespace BlackMaple.CSVOrders
             public int Priority { get; set; }
             public string Part { get; set; }
             public int Quantity { get; set; }
-            public int AvailMaterial { get; set; }
         }
 
         private class ScheduledBookingCsvRow
@@ -97,7 +96,6 @@ namespace BlackMaple.CSVOrders
                         Priority = 100,
                         Part = "part1",
                         Quantity = 50,
-                        AvailMaterial = 50
                     });
                     csv.WriteRecord<UnscheduledCsvRow>(new UnscheduledCsvRow()
                     {
@@ -106,7 +104,6 @@ namespace BlackMaple.CSVOrders
                         Priority = 100,
                         Part = "part2",
                         Quantity = 77,
-                        AvailMaterial = 60
                     });
                 }
             }
@@ -150,8 +147,9 @@ namespace BlackMaple.CSVOrders
                         BookingId = row.Id,
                         Part = row.Part,
                         Quantity = row.Quantity,
-                        AvailableMaterial = row.AvailMaterial,
+                        CastingId = null
                     });
+                    
                 }
 
             }
@@ -205,7 +203,8 @@ namespace BlackMaple.CSVOrders
             {
                 UnscheduledBookings = LoadUnscheduledBookings().Values,
                 ScheduledParts = LoadScheduledParts(),
-                LatestBackoutId = LoadLatestBackoutId()
+                LatestBackoutId = LoadLatestBackoutId(),
+                Castings = new List<Casting>()
             };
         }
 

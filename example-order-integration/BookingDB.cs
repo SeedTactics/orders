@@ -16,6 +16,7 @@ namespace ExampleOrderIntegration
         public DbSet<Booking> Bookings { get; set; }
         public DbSet<ScheduledPartWithoutBooking> ExtraParts { get; set; }
         public DbSet<LatestBackoutIdSingleton> LatestBackoutId {get;set;}
+        public DbSet<Casting> Castings {get;set;}
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -32,6 +33,8 @@ namespace ExampleOrderIntegration
               .HasKey(p => p.Part);
             m.Entity<LatestBackoutIdSingleton>()
               .HasKey(x => x.BackoutId);
+            m.Entity<Casting>()
+              .HasKey(x => x.CastingId);
         }
     }
 
@@ -54,7 +57,10 @@ namespace ExampleOrderIntegration
                     LatestBackoutId = context.LatestBackoutId
                         .AsNoTracking()
                         .Select(x => x.BackoutId)
-                        .FirstOrDefault()
+                        .FirstOrDefault(),
+                    Castings = context.Castings
+                        .AsNoTracking()
+                        .ToList()
                 };
             }
         }
@@ -128,7 +134,7 @@ namespace ExampleOrderIntegration
                                 BookingId = bookingId,
                                 Part = p.Part,
                                 Quantity = p.Quantity,
-                                AvailableMaterial = 0
+                                CastingId = null
                             }
                         }
                     });

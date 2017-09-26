@@ -51,8 +51,10 @@ namespace BlackMaple.SeedOrders
         [DataMember]
         public int Quantity { get; set; }
 
+        ///<summary>The casting used by this part. Can be null to ignore castings and
+        ///just assume castings are always available.</summary>
         [DataMember]
-        public int AvailableMaterial { get; set; }
+        public string CastingId { get; set; }
     }
 
     /// <summary>A <c>Booking</c> is an order used for scheduling.</summary>
@@ -90,6 +92,19 @@ namespace BlackMaple.SeedOrders
         ///<summary>The parts to produce for this booking</summary>
         [DataMember]
         public List<BookingDemand> Parts { get; set; }
+    }
+
+    /// <summary>
+    ///  Represents a raw material/casting type with its available material.
+    /// </summary>
+    [DataContract]
+    public class Casting
+    {
+        [DataMember]
+        public string CastingId { get; set; }
+
+        [DataMember]
+        public int Quantity { get; set; }
     }
 
     /// <summary>
@@ -177,6 +192,21 @@ namespace BlackMaple.SeedOrders
         ///</remarks>
         [DataMember]
         public string LatestBackoutId {get;set;}
+
+        ///<summary>
+        ///List of castings and quantities.
+        ///</summary>
+        ///<remarks>
+        /// <para>
+        ///   Castings restrict the available orders which are examined during daily schedule
+        ///   generation, because only parts that have available castings will be scheduled.
+        ///   If castings are always available, they can be ignored by leaving the
+        ///   <c>CastingId</c> in <c>BookingDemand</c> null, and not including any casting
+        ///   data here.
+        /// </para>
+        ///</remarks>
+        [DataMember]
+        public IEnumerable<Casting> Castings {get;set;}
     }
 
     /// <summary>

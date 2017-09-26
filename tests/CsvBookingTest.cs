@@ -66,8 +66,8 @@ namespace tests
                 DueDate = new DateTime(2017, 01, 01),
                 ScheduleId = null,
                 Parts = new List<BookingDemand> {
-                        new BookingDemand { BookingId = "booking1", Part = "part1", Quantity = 44, AvailableMaterial=44},
-                        new BookingDemand { BookingId = "booking1", Part = "part2", Quantity = 66, AvailableMaterial=50}
+                        new BookingDemand { BookingId = "booking1", Part = "part1", Quantity = 44, CastingId=null},
+                        new BookingDemand { BookingId = "booking1", Part = "part2", Quantity = 66, CastingId=null}
                      }
             });
             initialBookings.Add(new Booking
@@ -77,8 +77,8 @@ namespace tests
                 DueDate = new DateTime(2017, 02, 02),
                 ScheduleId = null,
                 Parts = new List<BookingDemand> {
-                        new BookingDemand { BookingId = "booking2", Part = "part1", Quantity = 55, AvailableMaterial=4},
-                        new BookingDemand { BookingId = "booking2", Part = "part2", Quantity = 77, AvailableMaterial=66}
+                        new BookingDemand { BookingId = "booking2", Part = "part1", Quantity = 55},
+                        new BookingDemand { BookingId = "booking2", Part = "part2", Quantity = 77}
                      }
             });
             initialBookings.Add(new Booking
@@ -88,8 +88,8 @@ namespace tests
                 DueDate = new DateTime(2017, 03, 03),
                 ScheduleId = null,
                 Parts = new List<BookingDemand> {
-                        new BookingDemand { BookingId = "booking3", Part = "part1", Quantity = 111, AvailableMaterial=0},
-                        new BookingDemand { BookingId = "booking3", Part = "part3", Quantity = 222, AvailableMaterial=15}
+                        new BookingDemand { BookingId = "booking3", Part = "part1", Quantity = 111},
+                        new BookingDemand { BookingId = "booking3", Part = "part3", Quantity = 222}
                      }
             });
 
@@ -97,7 +97,7 @@ namespace tests
             {
                 using (var s = new StreamWriter(f))
                 {
-                    s.WriteLine("Id,DueDate,Priority,Part,Quantity,AvailMaterial");
+                    s.WriteLine("Id,DueDate,Priority,Part,Quantity");
                     foreach (var b in initialBookings)
                     {
                         foreach (var p in b.Parts)
@@ -105,8 +105,7 @@ namespace tests
                             s.WriteLine(b.BookingId + ","
                               + b.DueDate.ToString("yyyy-MM-dd") + ","
                               + b.Priority.ToString() + ","
-                              + p.Part + "," + p.Quantity.ToString()
-                              + "," + p.AvailableMaterial.ToString());
+                              + p.Part + "," + p.Quantity.ToString());
                         }
                     }
                 }
@@ -145,6 +144,7 @@ namespace tests
             var status = booking.LoadUnscheduledStatus();
             status.ScheduledParts.ShouldAllBeEquivalentTo(initialSchParts);
             status.UnscheduledBookings.ShouldAllBeEquivalentTo(initialBookings);
+            Assert.Empty(status.Castings);
             Assert.Null(status.LatestBackoutId);
         }
 
@@ -247,7 +247,6 @@ namespace tests
                         BookingId = bookingId,
                         Part = "abc",
                         Quantity = 23,
-                        AvailableMaterial = 0
                     }
                 }
             });
@@ -264,7 +263,6 @@ namespace tests
                         BookingId = bookingId,
                         Part = "def",
                         Quantity = 193,
-                        AvailableMaterial = 0
                     }
                 }
             });

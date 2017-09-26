@@ -45,6 +45,7 @@ namespace tests
     {
         private List<Booking> initialBookings;
         private List<ScheduledPartWithoutBooking> initialSchParts;
+        private List<Casting> initialCastings;
 
         public SqliteBookingTest()
         {
@@ -56,6 +57,7 @@ namespace tests
 
             initialBookings = new List<Booking>();
             initialSchParts = new List<ScheduledPartWithoutBooking>();
+            initialCastings = new List<Casting>();
 
             using (var context = new ExampleOrderIntegration.BookingContext())
             {
@@ -66,8 +68,8 @@ namespace tests
                     DueDate = new DateTime(2017, 01, 01),
                     ScheduleId = null,
                     Parts = new List<BookingDemand> {
-                        new BookingDemand { BookingId = "booking1", Part = "part1", Quantity = 44, AvailableMaterial = 44},
-                        new BookingDemand { BookingId = "booking1", Part = "part2", Quantity = 66, AvailableMaterial = 50}
+                        new BookingDemand { BookingId = "booking1", Part = "part1", Quantity = 44, CastingId = "abc"},
+                        new BookingDemand { BookingId = "booking1", Part = "part2", Quantity = 66, CastingId = null}
                      }
                 });
                 initialBookings.Add(new Booking
@@ -77,8 +79,8 @@ namespace tests
                     DueDate = new DateTime(2017, 02, 02),
                     ScheduleId = null,
                     Parts = new List<BookingDemand> {
-                        new BookingDemand { BookingId = "booking2", Part = "part1", Quantity = 55, AvailableMaterial = 40},
-                        new BookingDemand { BookingId = "booking2", Part = "part2", Quantity = 77, AvailableMaterial = 0}
+                        new BookingDemand { BookingId = "booking2", Part = "part1", Quantity = 55, CastingId = "xyz"},
+                        new BookingDemand { BookingId = "booking2", Part = "part2", Quantity = 77, CastingId = "jjj"}
                      }
                 });
                 initialBookings.Add(new Booking
@@ -88,8 +90,8 @@ namespace tests
                     DueDate = new DateTime(2017, 03, 03),
                     ScheduleId = null,
                     Parts = new List<BookingDemand> {
-                        new BookingDemand { BookingId = "booking3", Part = "part1", Quantity = 111, AvailableMaterial = 102},
-                        new BookingDemand { BookingId = "booking3", Part = "part3", Quantity = 222, AvailableMaterial = 211}
+                        new BookingDemand { BookingId = "booking3", Part = "part1", Quantity = 111, CastingId = "abc"},
+                        new BookingDemand { BookingId = "booking3", Part = "part3", Quantity = 222, CastingId = "zzz"}
                      }
                 });
 
@@ -107,6 +109,13 @@ namespace tests
                 });
 
                 foreach (var p in initialSchParts) context.ExtraParts.Add(p);
+
+                initialCastings.Add(new Casting {CastingId = "abc", Quantity = 15});
+                initialCastings.Add(new Casting {CastingId = "xyz", Quantity = 10});
+                initialCastings.Add(new Casting {CastingId = "jjj", Quantity = 0});
+                initialCastings.Add(new Casting {CastingId = "zzz", Quantity = 177});
+
+                foreach (var c in initialCastings) context.Castings.Add(c);
 
                 context.SaveChanges();
             }
@@ -132,6 +141,7 @@ namespace tests
             var status = booking.LoadUnscheduledStatus();
             status.ScheduledParts.ShouldAllBeEquivalentTo(initialSchParts);
             status.UnscheduledBookings.ShouldAllBeEquivalentTo(initialBookings);
+            status.Castings.ShouldAllBeEquivalentTo(initialCastings);
             Assert.Null(status.LatestBackoutId);
         }
 
@@ -222,7 +232,7 @@ namespace tests
                         BookingId = bookingId,
                         Part = "abc",
                         Quantity = 23,
-                        AvailableMaterial = 0
+                        CastingId = null
                     }
                 }
             });
@@ -239,7 +249,7 @@ namespace tests
                         BookingId = bookingId,
                         Part = "def",
                         Quantity = 193,
-                        AvailableMaterial = 0
+                        CastingId = null
                     }
                 }
             });
