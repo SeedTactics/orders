@@ -162,7 +162,7 @@ namespace BlackMaple.SeedOrders
         /// <summary>
         ///   Load all unfilled workorders.
         /// </summary>
-        IEnumerable<Workorder> LoadUnfilledWorkorders();
+        IEnumerable<Workorder> LoadUnfilledWorkorders(int lookaheadDays);
 
         /// <summary>
         ///   Load all unfilled workorders for the given part.

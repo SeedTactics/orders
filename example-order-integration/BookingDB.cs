@@ -40,14 +40,15 @@ namespace ExampleOrderIntegration
 
     public class ExampleBookingDatabase : IBookingDatabase
     {
-        public UnscheduledStatus LoadUnscheduledStatus()
+        public UnscheduledStatus LoadUnscheduledStatus(int lookaheadDays)
         {
+            var endDate = DateTime.Today.AddDays(lookaheadDays);
             using (var context = new BookingContext())
             {
                 return new UnscheduledStatus
                 {
                     UnscheduledBookings = context.Bookings
-                        .Where(b => b.ScheduleId == null)
+                        .Where(b => b.ScheduleId == null && b.DueDate <= endDate)
                         .Include(b => b.Parts)
                         .AsNoTracking()
                         .ToList(),

@@ -94,10 +94,10 @@ namespace BlackMaple.SeedOrders
         }
 
         #region Booking API
-        public string LoadUnscheduledStatusJson()
+        public string LoadUnscheduledStatusJson(int lookaheadDays)
         {
             if (_bookings == null) throw new Exception("Plugin does not implement booking API");
-            return EncJson(_bookings.LoadUnscheduledStatus());
+            return EncJson(_bookings.LoadUnscheduledStatus(lookaheadDays));
         }
 
         public void CreateSchedule(string newScheduleJson)
@@ -117,10 +117,10 @@ namespace BlackMaple.SeedOrders
         #endregion
 
         #region Workorder API
-        public string LoadUnfilledWorkordersJson()
+        public string LoadUnfilledWorkordersJson(int lookaheadDays)
         {
             if (_workorders == null) throw new Exception("Plugin does not implement workorder API");
-            return EncJson(_workorders.LoadUnfilledWorkorders());
+            return EncJson(_workorders.LoadUnfilledWorkorders(lookaheadDays));
         }
 
         public string LoadUnfilledWorkordersJson(string part)

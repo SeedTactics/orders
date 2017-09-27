@@ -121,14 +121,19 @@ namespace BlackMaple.CSVOrders
             return workorderMap;
         }
 
-        public IEnumerable<Workorder> LoadUnfilledWorkorders()
+        public IEnumerable<Workorder> LoadUnfilledWorkorders(int lookaheadDays)
         {
-            return LoadUnfilledWorkordersMap().Values;
+            var endDate = DateTime.Today.AddDays(lookaheadDays);
+            return LoadUnfilledWorkordersMap()
+                .Values
+                .Where(x => x.DueDate <= endDate);
         }
 
         public IEnumerable<Workorder> LoadUnfilledWorkorders(string part)
         {
-            return LoadUnfilledWorkorders().Where(w => w.Parts.Any(p => p.Part == part));
+            return LoadUnfilledWorkordersMap()
+                .Values
+                .Where(w => w.Parts.Any(p => p.Part == part));
         }
 
         public void MarkWorkorderAsFilled(string workorderId,

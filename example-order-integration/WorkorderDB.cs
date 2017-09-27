@@ -30,12 +30,13 @@ namespace ExampleOrderIntegration
 
     public class ExampleWorkorderDatabase : IWorkorderDatabase
     {
-        public IEnumerable<Workorder> LoadUnfilledWorkorders()
+        public IEnumerable<Workorder> LoadUnfilledWorkorders(int lookaheadDays)
         {
+            var endDate = DateTime.Today.AddDays(lookaheadDays);
             using (var context = new WorkorderContext())
             {
                 return context.Workorders
-                  .Where(w => w.FilledUTC == null)
+                  .Where(w => w.FilledUTC == null && w.DueDate <= endDate)
                   .Include(w => w.Parts)
                   .AsNoTracking()
                   .ToList();

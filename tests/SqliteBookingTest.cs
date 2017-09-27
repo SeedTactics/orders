@@ -65,7 +65,7 @@ namespace tests
                 {
                     BookingId = "booking1",
                     Priority = 100,
-                    DueDate = new DateTime(2017, 01, 01),
+                    DueDate = DateTime.Today.AddDays(5),
                     ScheduleId = null,
                     Parts = new List<BookingDemand> {
                         new BookingDemand { BookingId = "booking1", Part = "part1", Quantity = 44, CastingId = "abc"},
@@ -76,7 +76,7 @@ namespace tests
                 {
                     BookingId = "booking2",
                     Priority = 200,
-                    DueDate = new DateTime(2017, 02, 02),
+                    DueDate = DateTime.Today.AddDays(15),
                     ScheduleId = null,
                     Parts = new List<BookingDemand> {
                         new BookingDemand { BookingId = "booking2", Part = "part1", Quantity = 55, CastingId = "xyz"},
@@ -87,7 +87,7 @@ namespace tests
                 {
                     BookingId = "booking3",
                     Priority = 300,
-                    DueDate = new DateTime(2017, 03, 03),
+                    DueDate = DateTime.Today.AddDays(30),
                     ScheduleId = null,
                     Parts = new List<BookingDemand> {
                         new BookingDemand { BookingId = "booking3", Part = "part1", Quantity = 111, CastingId = "abc"},
@@ -138,9 +138,17 @@ namespace tests
         public void LoadUnscheduledStatus()
         {
             var booking = new ExampleOrderIntegration.ExampleBookingDatabase();
-            var status = booking.LoadUnscheduledStatus();
+            var status = booking.LoadUnscheduledStatus(50);
             status.ScheduledParts.ShouldAllBeEquivalentTo(initialSchParts);
             status.UnscheduledBookings.ShouldAllBeEquivalentTo(initialBookings);
+            status.Castings.ShouldAllBeEquivalentTo(initialCastings);
+            Assert.Null(status.LatestBackoutId);
+
+            status = booking.LoadUnscheduledStatus(10);
+            status.ScheduledParts.ShouldAllBeEquivalentTo(initialSchParts);
+            status.UnscheduledBookings.ShouldAllBeEquivalentTo(
+                new [] {initialBookings[0]}
+            );
             status.Castings.ShouldAllBeEquivalentTo(initialCastings);
             Assert.Null(status.LatestBackoutId);
         }
@@ -188,7 +196,7 @@ namespace tests
             }
 
             //check status
-            var status = booking.LoadUnscheduledStatus();
+            var status = booking.LoadUnscheduledStatus(50);
             status.ScheduledParts.ShouldAllBeEquivalentTo(schParts);
             status.UnscheduledBookings.ShouldAllBeEquivalentTo(
                 new Booking[] { initialBookings[2] }
@@ -254,7 +262,7 @@ namespace tests
                 }
             });
 
-            var status = booking.LoadUnscheduledStatus();
+            var status = booking.LoadUnscheduledStatus(50);
             status.ScheduledParts.ShouldAllBeEquivalentTo(initialSchParts);
             status.UnscheduledBookings.ShouldAllBeEquivalentTo(initialBookings);
             Assert.Equal("thebackoutid", status.LatestBackoutId);

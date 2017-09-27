@@ -197,11 +197,15 @@ namespace BlackMaple.CSVOrders
                 return null;
         }
 
-        public UnscheduledStatus LoadUnscheduledStatus()
+        public UnscheduledStatus LoadUnscheduledStatus(int lookheadDays)
         {
+            var endDate = DateTime.Today.AddDays(lookheadDays);
             return new UnscheduledStatus
             {
-                UnscheduledBookings = LoadUnscheduledBookings().Values,
+                UnscheduledBookings =
+                    LoadUnscheduledBookings()
+                        .Values
+                        .Where(x => x.DueDate <= endDate),
                 ScheduledParts = LoadScheduledParts(),
                 LatestBackoutId = LoadLatestBackoutId(),
                 Castings = new List<Casting>()

@@ -259,7 +259,7 @@ namespace BlackMaple.SeedOrders
         /// <summary>
         ///   Load all information about the unscheduled status.
         /// </summary>
-        UnscheduledStatus LoadUnscheduledStatus();
+        UnscheduledStatus LoadUnscheduledStatus(int lookaheadDays);
 
         /// <summary>
         ///   Mark the given bookings as scheduled and replace scheduled parts with the following parts.
