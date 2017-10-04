@@ -199,13 +199,21 @@ namespace BlackMaple.CSVOrders
 
         public UnscheduledStatus LoadUnscheduledStatus(int lookheadDays)
         {
-            var endDate = DateTime.Today.AddDays(lookheadDays);
+            IEnumerable<Booking> bookings;
+            if (lookheadDays > 0)
+            {
+                var endDate = DateTime.Today.AddDays(lookheadDays);
+                bookings = LoadUnscheduledBookings()
+                        .Values
+                        .Where(x => x.DueDate <= endDate);
+            }
+            else
+            {
+                bookings = LoadUnscheduledBookings().Values;
+            }
             return new UnscheduledStatus
             {
-                UnscheduledBookings =
-                    LoadUnscheduledBookings()
-                        .Values
-                        .Where(x => x.DueDate <= endDate),
+                UnscheduledBookings = bookings,
                 ScheduledParts = LoadScheduledParts(),
                 LatestBackoutId = LoadLatestBackoutId(),
                 Castings = new List<Casting>()

@@ -117,6 +117,8 @@ namespace tests
               .ShouldAllBeEquivalentTo(new [] { initialWorkorders[0] });
             workDB.LoadUnfilledWorkorders("part3")
               .ShouldAllBeEquivalentTo(new Workorder[] {initialWorkorders[2]});
+            workDB.LoadUnfilledWorkorders(-1)
+              .ShouldAllBeEquivalentTo(initialWorkorders);
         }
 
         [Fact]

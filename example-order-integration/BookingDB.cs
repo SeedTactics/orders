@@ -48,7 +48,7 @@ namespace ExampleOrderIntegration
                 return new UnscheduledStatus
                 {
                     UnscheduledBookings = context.Bookings
-                        .Where(b => b.ScheduleId == null && b.DueDate <= endDate)
+                        .Where(b => b.ScheduleId == null && (lookaheadDays <= 0 || b.DueDate <= endDate))
                         .Include(b => b.Parts)
                         .AsNoTracking()
                         .ToList(),

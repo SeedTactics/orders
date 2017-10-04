@@ -36,7 +36,7 @@ namespace ExampleOrderIntegration
             using (var context = new WorkorderContext())
             {
                 return context.Workorders
-                  .Where(w => w.FilledUTC == null && w.DueDate <= endDate)
+                  .Where(w => w.FilledUTC == null && (lookaheadDays <= 0 || w.DueDate <= endDate))
                   .Include(w => w.Parts)
                   .AsNoTracking()
                   .ToList();

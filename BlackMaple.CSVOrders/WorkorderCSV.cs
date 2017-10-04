@@ -123,10 +123,17 @@ namespace BlackMaple.CSVOrders
 
         public IEnumerable<Workorder> LoadUnfilledWorkorders(int lookaheadDays)
         {
-            var endDate = DateTime.Today.AddDays(lookaheadDays);
-            return LoadUnfilledWorkordersMap()
-                .Values
-                .Where(x => x.DueDate <= endDate);
+            if (lookaheadDays > 0)
+            {
+                var endDate = DateTime.Today.AddDays(lookaheadDays);
+                return LoadUnfilledWorkordersMap()
+                    .Values
+                    .Where(x => x.DueDate <= endDate);
+            }
+            else
+            {
+                return LoadUnfilledWorkordersMap().Values;
+            }
         }
 
         public IEnumerable<Workorder> LoadUnfilledWorkorders(string part)

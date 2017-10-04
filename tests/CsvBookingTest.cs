@@ -154,6 +154,12 @@ namespace tests
             );
             Assert.Empty(status.Castings);
             Assert.Null(status.LatestBackoutId);
+
+            status = booking.LoadUnscheduledStatus(-1);
+            status.ScheduledParts.ShouldAllBeEquivalentTo(initialSchParts);
+            status.UnscheduledBookings.ShouldAllBeEquivalentTo(initialBookings);
+            Assert.Empty(status.Castings);
+            Assert.Null(status.LatestBackoutId);
         }
 
         [Fact]
