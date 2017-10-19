@@ -71,7 +71,7 @@ namespace BlackMaple.CSVOrders
 
         private Dictionary<string, Workorder> LoadUnfilledWorkordersMap()
         {
-            var path = Path.Combine(CSVBasePath, "unscheduled-workorders.csv");
+            var path = Path.Combine(CSVBasePath, "workorders.csv");
             var workorderMap = new Dictionary<string, Workorder>();
             if (!File.Exists(path))
             {

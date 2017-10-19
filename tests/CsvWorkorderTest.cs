@@ -82,7 +82,7 @@ namespace tests
                      }
             });
 
-            using (var f = File.Open("unscheduled-workorders.csv", FileMode.Create))
+            using (var f = File.Open("workorders.csv", FileMode.Create))
             {
                 using (var s = new StreamWriter(f))
                 {
