@@ -200,16 +200,16 @@ namespace tests
 
             var sch1 = File.ReadAllLines("scheduled-bookings/booking1.csv");
             var sch2 = File.ReadAllLines("scheduled-bookings/booking2.csv");
-
+            
             sch1.ShouldAllBeEquivalentTo(new string[] {
                 "ScheduledTimeUTC,Part,Quantity,ScheduleId",
-                "11/5/16 12:00:00 AM,part1,44,12345",
-                "11/5/16 12:00:00 AM,part2,66,12345"
+                "2016-11-05T00:00:00Z,part1,44,12345",
+                "2016-11-05T00:00:00Z,part2,66,12345"
             });
             sch2.ShouldAllBeEquivalentTo(new string[] {
                 "ScheduledTimeUTC,Part,Quantity,ScheduleId",
-                "11/5/16 12:00:00 AM,part1,55,12345",
-                "11/5/16 12:00:00 AM,part2,77,12345"
+                "2016-11-05T00:00:00Z,part1,55,12345",
+                "2016-11-05T00:00:00Z,part2,77,12345"
             });
         }
 

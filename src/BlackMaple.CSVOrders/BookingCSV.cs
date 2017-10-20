@@ -85,9 +85,8 @@ namespace BlackMaple.CSVOrders
                 using (var s = new StreamWriter(f))
                 {
                     var csv = new CsvHelper.CsvWriter(s);
-                    var autoMap = csv.Configuration.AutoMap<UnscheduledCsvRow>();
-                    autoMap.PropertyMaps[1].TypeConverterOption("yyyy-MM-dd");
-                    csv.Configuration.RegisterClassMap(autoMap);
+                    csv.Configuration.TypeConverterOptionsCache.GetOptions<DateTime>().Formats
+                            = new string[] {"yyyy-MM-dd"};
                     csv.WriteHeader<UnscheduledCsvRow>();
                     csv.WriteRecord<UnscheduledCsvRow>(new UnscheduledCsvRow()
                     {
@@ -246,7 +245,10 @@ namespace BlackMaple.CSVOrders
                     using (var stream = new StreamWriter(f))
                     {
                         var csv = new CsvHelper.CsvWriter(stream);
+                        csv.Configuration.TypeConverterOptionsCache.GetOptions<DateTime>().Formats
+                            = new string[] {"yyyy-MM-ddTHH:mm:ssZ"};
                         csv.WriteHeader<ScheduledBookingCsvRow>();
+                        csv.NextRecord();
 
                         if (unschBookings.ContainsKey(bookingId))
                         {
@@ -259,6 +261,7 @@ namespace BlackMaple.CSVOrders
                                     Quantity = p.Quantity,
                                     ScheduleId = scheduleId
                                 });
+                                csv.NextRecord();
                             }
                         }
                         else
@@ -270,6 +273,7 @@ namespace BlackMaple.CSVOrders
                                 Quantity = 0,
                                 ScheduleId = scheduleId
                             });
+                            csv.NextRecord();
                         }
 
                         stream.Flush();
@@ -307,12 +311,13 @@ namespace BlackMaple.CSVOrders
                 using (var s = new StreamWriter(f))
                 {
                     var csv = new CsvHelper.CsvWriter(s);
-                    var autoMap = csv.Configuration.AutoMap<UnscheduledCsvRow>();
-                    autoMap.PropertyMaps[1].TypeConverterOption("yyyy-MM-dd");
-                    csv.Configuration.RegisterClassMap(autoMap);
+                    csv.Configuration.TypeConverterOptionsCache.GetOptions<DateTime>().Formats
+                            = new string[] {"yyyy-MM-dd"};
 
-                    if (!fileExists)
+                    if (!fileExists) {
                         csv.WriteHeader<UnscheduledCsvRow>();
+                        csv.NextRecord();
+                    }
 
                     foreach (var p in backedOutParts)
                     {
@@ -324,6 +329,7 @@ namespace BlackMaple.CSVOrders
                             Part = p.Part,
                             Quantity = p.Quantity
                         });
+                        csv.NextRecord();
                     }
                 }
             }

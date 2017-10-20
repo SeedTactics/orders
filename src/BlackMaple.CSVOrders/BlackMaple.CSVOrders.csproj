@@ -20,7 +20,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CsvHelper" Version="2.*"/>
+    <PackageReference Include="CsvHelper" Version="4.0.*"/>
     <ProjectReference Include="../BlackMaple.SeedOrders/BlackMaple.SeedOrders.csproj"/>
   </ItemGroup>
 </Project>
