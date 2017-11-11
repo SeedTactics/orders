@@ -14,6 +14,12 @@
     <PackageProjectUrl>https://www.seedtactics.com</PackageProjectUrl>
     <RepositoryUrl>https://bitbucket.org/blackmaple/seedorders</RepositoryUrl>
     <RepositoryType>hg</RepositoryType>
+    <Description>
+      This package contains the CSV implementation of the order plugin API for SeedTactics.
+      This plugin uses CSV files to communicate orders between the ERP and the SeedTactics software.
+
+      For documentation and source code, visit [the bitbucket project](https://bitbucket.org/blackmaple/seedorders).
+    </Description>
 
     <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
     <OutputType>Library</OutputType>
