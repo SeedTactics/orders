@@ -3,31 +3,9 @@ image: Visual Studio 2017
 
 build_script:
 - ps: |
-    $dirs =
-        src/BlackMaple.SeedOrders,
-        src/BlackMaple.CSVOrders,
-        test,
-        example-order-integration/plugin,
-        example-order-integration/tests
-    For-Each ($d in $dirs) {
-        "Building " + $d
-        cd $d && dotnet build
-    }
-
-    $tag = hg id -t -r '.^'
-    If ($tag.StartsWith("seedorders-")) {
-        cd src/BlackMaple.SeedOrders
-        $ver = $tag.Replace("seedorders-", "")
-        dotnet pack -c Release /p:VersionPrefix=$ver --include-symbols
-    } else if ($tag.StartsWith("csv-")) {
-        cd src/BlackMaple.CSVOrders
-        $basever = (hg id -t -r "ancestors(.) and tag(r're:seedorders)'").Split(".")[0]
-        (Get-Content "src/BlackMaple.CSVOrders/BlackMaple.CSVOrders.csproj")
-          .Replace("<ProjectReference Include=\"../BlackMaple.SeedOrders/BlackMaple.SeedOrders.csproj\"/>",
-                   "<PackageReference Include=\"BlackMaple.SeedOrders\" Version=\"$basever.*\"/>")
-          | Set-Content "src/BlackMaple.CSVOrders/BlackMaple.CSVOrders.csproj"
-        $ver = $tag.Replace("csv-", "")
-        dotnet pack -c Release /p:VersionPrefix=$ver --include-symbols
+    c:\python36\python.exe build.py
+    if $(hg id -t -r '.^') -ne "" {
+        Set-AppveyorBuildVariable "BMS_RELEASE_TO_NUGET" "true"
     }
 
 test:
