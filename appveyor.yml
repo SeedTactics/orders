@@ -4,7 +4,7 @@ image: Visual Studio 2017
 build_script:
 - ps: |
     c:\python36\python.exe build.py
-    if $(hg id -t -r '.^') -ne "" {
+    if ($(hg id -t -r '.^') -ne "") {
         Set-AppveyorBuildVariable "BMS_RELEASE_TO_NUGET" "true"
     }
 
