@@ -3,7 +3,7 @@
   <PropertyGroup>
     <PackageId>BlackMaple.SeedOrders</PackageId>
     <AssemblyName>BlackMaple.SeedOrders</AssemblyName>
-    <VersionPrefix>2.8.1</VersionPrefix>
+    <OutputType>Library</OutputType>
 
     <Title>SeedTactics Order API</Title>
     <Company>Black Maple Software, LLC</Company>
@@ -20,9 +20,18 @@
 
       For documentation and source code, visit [the bitbucket project](https://bitbucket.org/blackmaple/seedorders).
     </Description>
-
-
-    <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
-    <OutputType>Library</OutputType>
   </PropertyGroup>
+
+  <Choose>
+      <When Condition="$(OS) == 'Unix'">
+          <PropertyGroup>
+              <TargetFramework>netstandard2.0</TargetFramework>
+          </PropertyGroup>
+      </When>
+      <When Condition="$(OS) == 'Windows_NT'">
+          <PropertyGroup>
+              <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
+          </PropertyGroup>
+      </When>
+  </Choose>
 </Project>

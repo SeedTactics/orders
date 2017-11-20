@@ -3,7 +3,7 @@
   <PropertyGroup>
     <PackageId>BlackMaple.CSVOrders</PackageId>
     <AssemblyName>BlackMaple.CSVOrders</AssemblyName>
-    <VersionPrefix>2.8.4</VersionPrefix>
+    <OutputType>Library</OutputType>
 
     <Title>SeedTactics OrderLink - CSV Order Plugin</Title>
     <Company>Black Maple Software, LLC</Company>
@@ -20,13 +20,23 @@
 
       For documentation and source code, visit [the bitbucket project](https://bitbucket.org/blackmaple/seedorders).
     </Description>
-
-    <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
-    <OutputType>Library</OutputType>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="4.0.*"/>
     <ProjectReference Include="../BlackMaple.SeedOrders/BlackMaple.SeedOrders.csproj"/>
   </ItemGroup>
+
+  <Choose>
+      <When Condition="$(OS) == 'Unix'">
+          <PropertyGroup>
+              <TargetFramework>netstandard2.0</TargetFramework>
+          </PropertyGroup>
+      </When>
+      <When Condition="$(OS) == 'Windows_NT'">
+          <PropertyGroup>
+              <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
+          </PropertyGroup>
+      </When>
+  </Choose>
 </Project>
