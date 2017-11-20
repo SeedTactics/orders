@@ -34,7 +34,7 @@ else:
 # Build CSV orders
 if curtag.startswith("csv-"):
     # Switch reference to use nuget seedorders
-    seedver = subprocess.check_output(["hg", "id", "-t", "-r", "ancestors(.) and tag(re:seedorders)"])
+    seedver = subprocess.check_output(["hg", "id", "-t", "-r", "ancestors(.) and tag('re:seedorders')"]).decode("utf-8")
     seedver = seedver.replace("seedorders-", "").split(".")[0]
     freplace("src/BlackMaple.CSVOrders/BlackMaple.CSVOrders.csproj",
             r'<ProjectReference Include="../BlackMaple.SeedOrders[^>]+>',
