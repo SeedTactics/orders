@@ -40,7 +40,7 @@ if curtag.startswith("csv-"):
             r'<ProjectReference Include="../BlackMaple.SeedOrders[^>]+>',
              '<PackageReference Include="BlackMaple.SeedOrders" Version="' + seedver + '.*"/>')
     freplace("tests/tests.csproj",
-            r'<ProjectReference Include="../BlackMaple.SeedOrders[^>]+>',
+            r'<ProjectReference Include="../src/BlackMaple.SeedOrders[^>]+>',
              '<PackageReference Include="BlackMaple.SeedOrders" Version="' + seedver + '.*"/>')
     
     # Pack CSV
