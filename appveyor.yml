@@ -8,11 +8,6 @@ build_script:
         Set-AppveyorBuildVariable "BMS_RELEASE_TO_NUGET" "true"
     }
 
-test:
-  assemblies:
-    only:
-      - '**/tests.dll'
-
 artifacts:
 - path: '**/*.nupkg'
 
