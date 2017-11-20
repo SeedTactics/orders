@@ -8,6 +8,11 @@ build_script:
         Set-AppveyorBuildVariable "BMS_RELEASE_TO_NUGET" "true"
     }
 
+test_script:
+- ps: |
+    dotnet test tests
+    dotnet test example-order-integration/tests
+
 artifacts:
 - path: '**/*.nupkg'
 
