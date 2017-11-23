@@ -24,11 +24,10 @@
 
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="4.0.*"/>
-    <ProjectReference Include="../BlackMaple.SeedOrders/BlackMaple.SeedOrders.csproj"/>
   </ItemGroup>
 
   <Choose>
-    <When Condition="$(Configuration) == 'Debug'">
+    <When Condition="'$(Configuration)' == 'Debug'">
       <ItemGroup>
         <ProjectReference Include="../BlackMaple.SeedOrders/BlackMaple.SeedOrders.csproj"/>
       </ItemGroup>
