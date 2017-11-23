@@ -3,10 +3,34 @@ image: Visual Studio 2017
 
 build_script:
 - ps: |
-    c:\python36\python.exe build.py
-    if ($(hg id -t -r '.^') -ne "") {
+    $tag = $(hg id -t -r '.^')
+    function ver ($x) { c:\python36\python.exe version.py $x }
+    if ($tag.StartsWith("seedorders")) {
+        dotnet pack `
+            --include-symbols `
+            -c Release `
+            /p:VersionPrefix=$(ver seedorders) `
+            src/BlackMaple.SeedOrders
         Set-AppveyorBuildVariable "BMS_RELEASE_TO_NUGET" "true"
+    } elseif ($tag.StartsWith("csv")) {
+        dotnet pack `
+            --include-symbols `
+            -c Release `
+            /p:VersionPrefix=$(ver csv) `
+            src/BlackMaple.CSVOrders
+        Set-AppveyorBuildVariable "BMS_RELEASE_TO_NUGET" "true"
+    } else {
+        dotnet build `
+            /p:VersionPrefix=$(ver seedorders) `
+            --version-suffix pre.$Env:APPVEYOR_BUILD_NUMBER `
+            src/BlackMaple.SeedOrders
+        dotnet build `
+            /p:VersionPrefix=$(ver csv) `
+            --version-suffix pre.$Env:APPVEYOR_BUILD_NUMBER `
+            src/BlackMaple.CSVOrders
+        dotnet build example-order-integration/plugin
     }
+
 
 test_script:
 - ps: |

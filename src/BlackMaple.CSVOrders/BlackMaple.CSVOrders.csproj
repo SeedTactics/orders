@@ -28,6 +28,19 @@
   </ItemGroup>
 
   <Choose>
+    <When Condition="$(Configuration) == 'Debug'">
+      <ItemGroup>
+        <ProjectReference Include="../BlackMaple.SeedOrders/BlackMaple.SeedOrders.csproj"/>
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <PackageReference Include="BlackMaple.SeedOrders" Version="3.*"/>
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
+
+  <Choose>
       <When Condition="$(OS) == 'Unix'">
           <PropertyGroup>
               <TargetFramework>netstandard2.0</TargetFramework>
