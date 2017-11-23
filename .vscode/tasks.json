@@ -1,0 +1,44 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "pack:seedorders",
+            "command": "dotnet pack -c Release /p:VersionPrefix=`${workspaceFolder}/version.py seedorders` --include-symbols --version-suffix=alpha`date -u +%Y%m%d%H%M%S` -o ${workspaceFolder}/../nugetpackages",
+            "options": {
+                "cwd": "${workspaceFolder}/src/BlackMaple.SeedOrders"
+            },
+            "type": "shell",
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "pack:csv",
+            "command": "dotnet pack -c Release /p:VersionPrefix=`${workspaceFolder}/version.py csv` --include-symbols --version-suffix=alpha`date -u +%Y%m%d%H%M%S` -o ${workspaceFolder}/../nugetpackages",
+            "options": {
+                "cwd": "${workspaceFolder}/src/BlackMaple.CSVOrders"
+            },
+            "type": "shell",
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "test",
+            "group": "test",
+            "command": "dotnet test tests && dotnet test example-order-integration/tests",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "type": "shell",
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
+        }
+    ]
+}
