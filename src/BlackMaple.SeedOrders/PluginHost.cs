@@ -66,9 +66,9 @@ namespace BlackMaple.SeedOrders
             {
                 foreach (var i in t.GetInterfaces())
                 {
-                    if (_bookings != null && i == typeof(IBookingDatabase))
+                    if (_bookings == null && i == typeof(IBookingDatabase))
                         _bookings = (IBookingDatabase)Activator.CreateInstance(t);
-                    if (_workorders != null && i == typeof(IWorkorderDatabase))
+                    if (_workorders == null && i == typeof(IWorkorderDatabase))
                         _workorders = (IWorkorderDatabase)Activator.CreateInstance(t);
                 }
             }
