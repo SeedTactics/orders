@@ -7,14 +7,12 @@ build_script:
     function ver ($x) { c:\python36\python.exe version.py $x }
     if ($tag.StartsWith("seedorders")) {
         dotnet pack `
-            --include-symbols `
             -c Release `
             /p:VersionPrefix=$(ver seedorders) `
             src/BlackMaple.SeedOrders
         Set-AppveyorBuildVariable "BMS_RELEASE_TO_NUGET" "true"
     } elseif ($tag.StartsWith("csv")) {
         dotnet pack `
-            --include-symbols `
             -c Release `
             /p:VersionPrefix=$(ver csv) `
             src/BlackMaple.CSVOrders
