@@ -54,7 +54,7 @@ namespace BlackMaple.SeedOrders
     ///    compatibility.
     ///   </para>
     /// </remarks>
-    public class PluginHost
+    public class PluginHost : MarshalByRefObject
     {
         private IBookingDatabase _bookings;
         private IWorkorderDatabase _workorders;
