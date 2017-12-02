@@ -8,12 +8,14 @@ build_script:
     if ($tag.StartsWith("seedorders")) {
         dotnet pack `
             -c Release `
+            --include-symbols `
             /p:VersionPrefix=$(ver seedorders) `
             src/BlackMaple.SeedOrders
         Set-AppveyorBuildVariable "BMS_RELEASE_TO_NUGET" "true"
     } elseif ($tag.StartsWith("csv")) {
         dotnet pack `
             -c Release `
+            --include-symbols `
             /p:VersionPrefix=$(ver csv) `
             src/BlackMaple.CSVOrders
         Set-AppveyorBuildVariable "BMS_RELEASE_TO_NUGET" "true"
