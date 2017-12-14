@@ -44,7 +44,21 @@ namespace BlackMaple.CSVOrders
     ///</summary>
     public class WorkorderCSV : IWorkorderDatabase
     {
-        public string CSVBasePath { get; set; } = ".";
+        private string _csvBase = null;
+        public string CSVBasePath
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_csvBase))
+                    return Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+                else 
+                    return _csvBase;
+            }
+            set
+            {
+                _csvBase = value;
+            }
+        }
 
         public const string FilledWorkordersPath = "filled-workorders";
 
