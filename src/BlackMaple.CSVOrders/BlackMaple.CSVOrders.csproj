@@ -23,7 +23,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CsvHelper" Version="4.0.*"/>
+    <PackageReference Include="CsvHelper" Version="6.0.*"/>
   </ItemGroup>
 
   <Choose>
