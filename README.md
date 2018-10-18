@@ -3,7 +3,7 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/89aqgtnjbpudcu01?svg=true)](https://ci.appveyor.com/project/wuzzeb/seedorders)
 
 This repository contains the order plugin API for [SeedTactics](https://www.seedtactics.com) and an example implementation of
-the plugin API.  This plugin is used to communicate orders between the ERP and the SeedTactics software.  For an overview
+the plugin API.  This plugin is used to communicate orders between the ERP and the SeedTactics Orderlink software.  For an overview
 of this process, see the [whitepaper](https://www.seedtactics.com/guide/orders-erp-automation).
 
 ## Plugin API Source Code
