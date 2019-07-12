@@ -363,4 +363,29 @@ namespace tests
 
     }
   }
+
+  public class CsvCreateBookingTest
+  {
+    [Fact]
+    public void CreateSampleBooking()
+    {
+      var bookFile = System.IO.Path.Combine("create-book-test", "bookings.csv");
+      if (!System.IO.Directory.Exists("create-book-test"))
+        System.IO.Directory.CreateDirectory("create-book-test");
+      if (System.IO.File.Exists(bookFile))
+        System.IO.File.Delete(bookFile);
+      var booking = new BlackMaple.CSVOrders.CSVBookings();
+      booking.CSVBasePath = "create-book-test";
+      booking.LoadUnscheduledStatus(1);
+
+      var b = File.ReadAllLines(bookFile);
+
+      b.ShouldAllBeEquivalentTo(new string[] {
+        "Id,DueDate,Priority,Part,Quantity",
+        "12345," + DateTime.Today.AddDays(10).ToString("yyyy-MM-dd") + ",100,part1,50",
+        "98765," + DateTime.Today.AddDays(12).ToString("yyyy-MM-dd") + ",100,part2,77"
+      });
+
+    }
+  }
 }

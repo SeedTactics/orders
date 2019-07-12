@@ -39,192 +39,207 @@ using BlackMaple.SeedOrders;
 
 namespace BlackMaple.CSVOrders
 {
-    ///<summary>
-    ///  Implement management of orders via CSV files for simpler integration into ERP systems
-    ///</summary>
-    public class WorkorderCSV : IWorkorderDatabase
+  ///<summary>
+  ///  Implement management of orders via CSV files for simpler integration into ERP systems
+  ///</summary>
+  public class WorkorderCSV : IWorkorderDatabase
+  {
+    private string _csvBase = null;
+    public string CSVBasePath
     {
-        private string _csvBase = null;
-        public string CSVBasePath
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(_csvBase))
-                    return Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-                else 
-                    return _csvBase;
-            }
-            set
-            {
-                _csvBase = value;
-            }
-        }
-
-        public const string FilledWorkordersPath = "filled-workorders";
-
-        private class UnscheduledCsvRow
-        {
-            public string Id { get; set; }
-            public DateTime DueDate { get; set; }
-            public int Priority { get; set; }
-            public string Part { get; set; }
-            public int Quantity { get; set; }
-        }
-
-        private void CreateEmptyWorkorderFile(string file)
-        {
-            using (var f = File.OpenWrite(file))
-            {
-                using (var s = new StreamWriter(f))
-                {
-                    var csv = new CsvHelper.CsvWriter(s);
-                    csv.WriteHeader<UnscheduledCsvRow>();
-                }
-            }
-        }
-
-        private Dictionary<string, Workorder> LoadUnfilledWorkordersMap()
-        {
-            var path = Path.Combine(CSVBasePath, "workorders.csv");
-            var workorderMap = new Dictionary<string, Workorder>();
-            if (!File.Exists(path))
-            {
-                CreateEmptyWorkorderFile(path);
-                return workorderMap;
-            }
-
-            using (var f = File.OpenRead(path))
-            {
-                var csv = new CsvHelper.CsvReader(new StreamReader(f));
-
-                foreach (var row in csv.GetRecords<UnscheduledCsvRow>())
-                {
-                    Workorder work;
-                    if (workorderMap.ContainsKey(row.Id))
-                    {
-                        work = workorderMap[row.Id];
-                    }
-                    else
-                    {
-                        work = new Workorder
-                        {
-                            WorkorderId = row.Id,
-                            Priority = row.Priority,
-                            DueDate = row.DueDate,
-                            Parts = new List<WorkorderDemand>()
-                        };
-                        workorderMap.Add(row.Id, work);
-                    }
-                    work.Parts.Add(new WorkorderDemand
-                    {
-                        WorkorderId = row.Id,
-                        Part = row.Part,
-                        Quantity = row.Quantity
-                    });
-                }
-            }
-
-            foreach (var id in workorderMap.Keys.ToList())
-            {
-                var f = Path.Combine(CSVBasePath, Path.Combine(FilledWorkordersPath, id + ".csv"));
-                if (File.Exists(f))
-                {
-                    workorderMap.Remove(id);
-                }
-            }
-            return workorderMap;
-        }
-
-        public IEnumerable<Workorder> LoadUnfilledWorkorders(int lookaheadDays)
-        {
-            if (lookaheadDays > 0)
-            {
-                var endDate = DateTime.Today.AddDays(lookaheadDays);
-                return LoadUnfilledWorkordersMap()
-                    .Values
-                    .Where(x => x.DueDate <= endDate);
-            }
-            else
-            {
-                return LoadUnfilledWorkordersMap().Values;
-            }
-        }
-
-        public IEnumerable<Workorder> LoadUnfilledWorkorders(string part)
-        {
-            return LoadUnfilledWorkordersMap()
-                .Values
-                .Where(w => w.Parts.Any(p => p.Part == part));
-        }
-
-        public void MarkWorkorderAsFilled(string workorderId,
-                                          DateTime filledUTC,
-                                          WorkorderResources resources)
-        {
-            if (!Directory.Exists(Path.Combine(CSVBasePath, FilledWorkordersPath)))
-            {
-                Directory.CreateDirectory(Path.Combine(CSVBasePath, FilledWorkordersPath));
-            }
-
-            using (var f = File.OpenWrite(Path.Combine(CSVBasePath, Path.Combine(FilledWorkordersPath, workorderId + ".csv"))))
-            {
-                using (var stream = new StreamWriter(f))
-                {
-                    var csv = new CsvHelper.CsvWriter(stream);
-                    csv.WriteField("CompletedTimeUTC");
-                    csv.WriteField("ID");
-                    csv.WriteField("Part");
-                    csv.WriteField("Quantity");
-                    csv.WriteField("Serials");
-
-                    var activeStations = new HashSet<string>();
-                    var elapsedStations = new HashSet<string>();
-                    foreach (var p in resources.Parts)
-                    {
-                        foreach (var k in p.ActiveOperationTime.Keys)
-                            activeStations.Add(k);
-                        foreach (var k in p.ElapsedOperationTime.Keys)
-                            elapsedStations.Add(k);
-                    }
-
-                    var actualKeys = activeStations.OrderBy(x => x).ToList();
-                    foreach (var k in actualKeys)
-                    {
-                        csv.WriteField("Active " + k + " (minutes)");
-                    }
-                    var plannedKeys = elapsedStations.OrderBy(x => x).ToList();
-                    foreach (var k in plannedKeys)
-                    {
-                        csv.WriteField("Elapsed " + k + " (minutes)");
-                    }
-                    csv.NextRecord();
-
-                    foreach (var p in resources.Parts)
-                    {
-                        csv.WriteField(filledUTC.ToString("yyyy-MM-ddTHH:mm:ssZ"));
-                        csv.WriteField(workorderId);
-                        csv.WriteField(p.Part);
-                        csv.WriteField(p.PartsCompleted);
-                        csv.WriteField(string.Join(";", resources.Serials));
-
-                        foreach (var k in actualKeys)
-                        {
-                            if (p.ActiveOperationTime.ContainsKey(k))
-                                csv.WriteField(p.ActiveOperationTime[k].TotalMinutes);
-                            else
-                                csv.WriteField(0);
-                        }
-                        foreach (var k in plannedKeys)
-                        {
-                            if (p.ElapsedOperationTime.ContainsKey(k))
-                                csv.WriteField(p.ElapsedOperationTime[k].TotalMinutes);
-                            else
-                                csv.WriteField(0);
-                        }
-                        csv.NextRecord();
-                    }
-                }
-            }
-        }
+      get
+      {
+        if (string.IsNullOrEmpty(_csvBase))
+          return Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+        else
+          return _csvBase;
+      }
+      set
+      {
+        _csvBase = value;
+      }
     }
+
+    public const string FilledWorkordersPath = "filled-workorders";
+
+    private class UnscheduledCsvRow
+    {
+      public string Id { get; set; }
+      public DateTime DueDate { get; set; }
+      public int Priority { get; set; }
+      public string Part { get; set; }
+      public int Quantity { get; set; }
+    }
+
+    private void CreateEmptyWorkorderFile(string file)
+    {
+      using (var f = File.OpenWrite(file))
+      using (var s = new StreamWriter(f))
+      using (var csv = new CsvHelper.CsvWriter(s))
+      {
+        csv.Configuration.TypeConverterOptionsCache.GetOptions<DateTime>().Formats
+                = new string[] { "yyyy-MM-dd" };
+        csv.WriteRecords<UnscheduledCsvRow>(new[] {
+          new UnscheduledCsvRow()
+          {
+            Id = "12345",
+            DueDate = DateTime.Today.AddDays(10),
+            Priority = 100,
+            Part = "part1",
+            Quantity = 50,
+          },
+          new UnscheduledCsvRow()
+          {
+            Id = "98765",
+            DueDate = DateTime.Today.AddDays(12),
+            Priority = 100,
+            Part = "part2",
+            Quantity = 77,
+          }
+        });
+      }
+    }
+
+    private Dictionary<string, Workorder> LoadUnfilledWorkordersMap()
+    {
+      var path = Path.Combine(CSVBasePath, "workorders.csv");
+      var workorderMap = new Dictionary<string, Workorder>();
+      if (!File.Exists(path))
+      {
+        CreateEmptyWorkorderFile(path);
+        return workorderMap;
+      }
+
+      using (var f = File.OpenRead(path))
+      using (var csv = new CsvHelper.CsvReader(new StreamReader(f)))
+      {
+
+        foreach (var row in csv.GetRecords<UnscheduledCsvRow>())
+        {
+          Workorder work;
+          if (workorderMap.ContainsKey(row.Id))
+          {
+            work = workorderMap[row.Id];
+          }
+          else
+          {
+            work = new Workorder
+            {
+              WorkorderId = row.Id,
+              Priority = row.Priority,
+              DueDate = row.DueDate,
+              Parts = new List<WorkorderDemand>()
+            };
+            workorderMap.Add(row.Id, work);
+          }
+          work.Parts.Add(new WorkorderDemand
+          {
+            WorkorderId = row.Id,
+            Part = row.Part,
+            Quantity = row.Quantity
+          });
+        }
+      }
+
+      foreach (var id in workorderMap.Keys.ToList())
+      {
+        var f = Path.Combine(CSVBasePath, Path.Combine(FilledWorkordersPath, id + ".csv"));
+        if (File.Exists(f))
+        {
+          workorderMap.Remove(id);
+        }
+      }
+      return workorderMap;
+    }
+
+    public IEnumerable<Workorder> LoadUnfilledWorkorders(int lookaheadDays)
+    {
+      if (lookaheadDays > 0)
+      {
+        var endDate = DateTime.Today.AddDays(lookaheadDays);
+        return LoadUnfilledWorkordersMap()
+            .Values
+            .Where(x => x.DueDate <= endDate);
+      }
+      else
+      {
+        return LoadUnfilledWorkordersMap().Values;
+      }
+    }
+
+    public IEnumerable<Workorder> LoadUnfilledWorkorders(string part)
+    {
+      return LoadUnfilledWorkordersMap()
+          .Values
+          .Where(w => w.Parts.Any(p => p.Part == part));
+    }
+
+    public void MarkWorkorderAsFilled(string workorderId,
+                                      DateTime filledUTC,
+                                      WorkorderResources resources)
+    {
+      if (!Directory.Exists(Path.Combine(CSVBasePath, FilledWorkordersPath)))
+      {
+        Directory.CreateDirectory(Path.Combine(CSVBasePath, FilledWorkordersPath));
+      }
+
+      using (var f = File.OpenWrite(Path.Combine(CSVBasePath, Path.Combine(FilledWorkordersPath, workorderId + ".csv"))))
+      using (var stream = new StreamWriter(f))
+      using (var csv = new CsvHelper.CsvWriter(stream))
+      {
+        csv.WriteField("CompletedTimeUTC");
+        csv.WriteField("ID");
+        csv.WriteField("Part");
+        csv.WriteField("Quantity");
+        csv.WriteField("Serials");
+
+        var activeStations = new HashSet<string>();
+        var elapsedStations = new HashSet<string>();
+        foreach (var p in resources.Parts)
+        {
+          foreach (var k in p.ActiveOperationTime.Keys)
+            activeStations.Add(k);
+          foreach (var k in p.ElapsedOperationTime.Keys)
+            elapsedStations.Add(k);
+        }
+
+        var actualKeys = activeStations.OrderBy(x => x).ToList();
+        foreach (var k in actualKeys)
+        {
+          csv.WriteField("Active " + k + " (minutes)");
+        }
+        var plannedKeys = elapsedStations.OrderBy(x => x).ToList();
+        foreach (var k in plannedKeys)
+        {
+          csv.WriteField("Elapsed " + k + " (minutes)");
+        }
+        csv.NextRecord();
+
+        foreach (var p in resources.Parts)
+        {
+          csv.WriteField(filledUTC.ToString("yyyy-MM-ddTHH:mm:ssZ"));
+          csv.WriteField(workorderId);
+          csv.WriteField(p.Part);
+          csv.WriteField(p.PartsCompleted);
+          csv.WriteField(string.Join(";", resources.Serials));
+
+          foreach (var k in actualKeys)
+          {
+            if (p.ActiveOperationTime.ContainsKey(k))
+              csv.WriteField(p.ActiveOperationTime[k].TotalMinutes);
+            else
+              csv.WriteField(0);
+          }
+          foreach (var k in plannedKeys)
+          {
+            if (p.ElapsedOperationTime.ContainsKey(k))
+              csv.WriteField(p.ElapsedOperationTime[k].TotalMinutes);
+            else
+              csv.WriteField(0);
+          }
+          csv.NextRecord();
+        }
+      }
+    }
+  }
 }
