@@ -197,11 +197,11 @@ namespace BlackMaple.CSVOrders
       }
     }
 
-    private string LoadLatestBackoutId()
+    private long? LoadLatestBackoutId()
     {
       string f = Path.Combine(CSVBasePath, "latest-backout-id");
       if (File.Exists(f))
-        return File.ReadAllText(f);
+        return long.Parse(File.ReadAllText(f));
       else
         return null;
     }
@@ -307,12 +307,12 @@ namespace BlackMaple.CSVOrders
       File.Move(schTempFile, schFile);
     }
 
-    public void HandleBackedOutWork(string backoutId, IEnumerable<BackedOutPart> backedOutParts)
+    public void HandleBackedOutWork(long backoutId, IEnumerable<BackedOutPart> backedOutParts)
     {
       var file = Path.Combine(CSVBasePath, "bookings.csv");
       var fileExists = System.IO.File.Exists(file);
 
-      File.WriteAllText(Path.Combine(CSVBasePath, "latest-backout-id"), backoutId);
+      File.WriteAllText(Path.Combine(CSVBasePath, "latest-backout-id"), backoutId.ToString());
 
       using (var f = File.Open(file, FileMode.Append, FileAccess.Write, FileShare.None))
       using (var s = new StreamWriter(f))

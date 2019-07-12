@@ -39,101 +39,101 @@ using System.IO;
 
 namespace BlackMaple.SeedOrders
 {
-    /// <summary>
-    ///  Class used by SeedTactics to help communication between the plugin and SeedTactics itself
-    /// </summary>
-    /// <remarks>
-    ///  <para>
-    ///    If you are implementing an order plugin, you do not need to use this class at all.
-    ///    Instead, implement the <c>IBookingDatabase</c> and <c>IWorkorderDatabase</c> interfaces.
-    ///  </para>
-    ///  <para>
-    ///    SeedTactics itself will use this class to communicate across the AppDomain boundary.
-    ///    Internally, it uses JSON to communicate classes instead of relying on the Serializable
-    ///    attribute from .NET remoting. Using JSON and DataContract allows easier versioning and
-    ///    compatibility.
-    ///   </para>
-    /// </remarks>
-    public class PluginHost : MarshalByRefObject
+  /// <summary>
+  ///  Class used by SeedTactics to help communication between the plugin and SeedTactics itself
+  /// </summary>
+  /// <remarks>
+  ///  <para>
+  ///    If you are implementing an order plugin, you do not need to use this class at all.
+  ///    Instead, implement the <c>IBookingDatabase</c> and <c>IWorkorderDatabase</c> interfaces.
+  ///  </para>
+  ///  <para>
+  ///    SeedTactics itself will use this class to communicate across the AppDomain boundary.
+  ///    Internally, it uses JSON to communicate classes instead of relying on the Serializable
+  ///    attribute from .NET remoting. Using JSON and DataContract allows easier versioning and
+  ///    compatibility.
+  ///   </para>
+  /// </remarks>
+  public class PluginHost : MarshalByRefObject
+  {
+    private IBookingDatabase _bookings;
+    private IWorkorderDatabase _workorders;
+
+    public PluginHost(string pluginDll)
     {
-        private IBookingDatabase _bookings;
-        private IWorkorderDatabase _workorders;
-
-        public PluginHost(string pluginDll)
+      var a = Assembly.LoadFrom(pluginDll);
+      foreach (var t in a.GetTypes())
+      {
+        foreach (var i in t.GetInterfaces())
         {
-            var a = Assembly.LoadFrom(pluginDll);
-            foreach (var t in a.GetTypes())
-            {
-                foreach (var i in t.GetInterfaces())
-                {
-                    if (_bookings == null && i == typeof(IBookingDatabase))
-                        _bookings = (IBookingDatabase)Activator.CreateInstance(t);
-                    if (_workorders == null && i == typeof(IWorkorderDatabase))
-                        _workorders = (IWorkorderDatabase)Activator.CreateInstance(t);
-                }
-            }
+          if (_bookings == null && i == typeof(IBookingDatabase))
+            _bookings = (IBookingDatabase)Activator.CreateInstance(t);
+          if (_workorders == null && i == typeof(IWorkorderDatabase))
+            _workorders = (IWorkorderDatabase)Activator.CreateInstance(t);
         }
-
-        private string EncJson<T>(T val) where T : class
-        {
-            using (var ms = new MemoryStream())
-            {
-                var s = new DataContractJsonSerializer(typeof(T));
-                s.WriteObject(ms, val);
-                return System.Text.Encoding.UTF8.GetString(ms.ToArray());
-            }
-        }
-
-        private T DecJson<T>(string json) where T : class
-        {
-            using (var ms = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(json)))
-            {
-                var s = new DataContractJsonSerializer(typeof(T));
-                return s.ReadObject(ms) as T;
-            }
-        }
-
-        #region Booking API
-        public string LoadUnscheduledStatusJson(int lookaheadDays)
-        {
-            if (_bookings == null) throw new Exception("Plugin does not implement booking API");
-            return EncJson(_bookings.LoadUnscheduledStatus(lookaheadDays));
-        }
-
-        public void CreateSchedule(string newScheduleJson)
-        {
-            if (_bookings == null) throw new Exception("Plugin does not implement booking API");
-            _bookings.CreateSchedule(DecJson<NewSchedule>(newScheduleJson));
-        }
-
-        public void HandleBackedOutWork(string backoutId, string backedOutParts)
-        {
-            if (_bookings == null) throw new Exception("Plugin does not implement booking API");
-            _bookings.HandleBackedOutWork(
-                backoutId,
-                DecJson<List<BackedOutPart>>(backedOutParts)
-            );
-        }
-        #endregion
-
-        #region Workorder API
-        public string LoadUnfilledWorkordersJson(int lookaheadDays)
-        {
-            if (_workorders == null) throw new Exception("Plugin does not implement workorder API");
-            return EncJson(_workorders.LoadUnfilledWorkorders(lookaheadDays));
-        }
-
-        public string LoadUnfilledWorkordersJson(string part)
-        {
-            if (_workorders == null) throw new Exception("Plugin does not implement workorder API");
-            return EncJson(_workorders.LoadUnfilledWorkorders(part));
-        }
-
-        public void MarkWorkorderAsFilled(string workorderId, DateTime fillUTC, string resourcesJson)
-        {
-            if (_workorders == null) throw new Exception("Plugin does not implement workorder API");
-            _workorders.MarkWorkorderAsFilled(workorderId, fillUTC, DecJson<WorkorderResources>(resourcesJson));
-        }
-        #endregion
+      }
     }
+
+    private string EncJson<T>(T val) where T : class
+    {
+      using (var ms = new MemoryStream())
+      {
+        var s = new DataContractJsonSerializer(typeof(T));
+        s.WriteObject(ms, val);
+        return System.Text.Encoding.UTF8.GetString(ms.ToArray());
+      }
+    }
+
+    private T DecJson<T>(string json) where T : class
+    {
+      using (var ms = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(json)))
+      {
+        var s = new DataContractJsonSerializer(typeof(T));
+        return s.ReadObject(ms) as T;
+      }
+    }
+
+    #region Booking API
+    public string LoadUnscheduledStatusJson(int lookaheadDays)
+    {
+      if (_bookings == null) throw new Exception("Plugin does not implement booking API");
+      return EncJson(_bookings.LoadUnscheduledStatus(lookaheadDays));
+    }
+
+    public void CreateSchedule(string newScheduleJson)
+    {
+      if (_bookings == null) throw new Exception("Plugin does not implement booking API");
+      _bookings.CreateSchedule(DecJson<NewSchedule>(newScheduleJson));
+    }
+
+    public void HandleBackedOutWork(long backoutId, string backedOutParts)
+    {
+      if (_bookings == null) throw new Exception("Plugin does not implement booking API");
+      _bookings.HandleBackedOutWork(
+          backoutId,
+          DecJson<List<BackedOutPart>>(backedOutParts)
+      );
+    }
+    #endregion
+
+    #region Workorder API
+    public string LoadUnfilledWorkordersJson(int lookaheadDays)
+    {
+      if (_workorders == null) throw new Exception("Plugin does not implement workorder API");
+      return EncJson(_workorders.LoadUnfilledWorkorders(lookaheadDays));
+    }
+
+    public string LoadUnfilledWorkordersJson(string part)
+    {
+      if (_workorders == null) throw new Exception("Plugin does not implement workorder API");
+      return EncJson(_workorders.LoadUnfilledWorkorders(part));
+    }
+
+    public void MarkWorkorderAsFilled(string workorderId, DateTime fillUTC, string resourcesJson)
+    {
+      if (_workorders == null) throw new Exception("Plugin does not implement workorder API");
+      _workorders.MarkWorkorderAsFilled(workorderId, fillUTC, DecJson<WorkorderResources>(resourcesJson));
+    }
+    #endregion
+  }
 }

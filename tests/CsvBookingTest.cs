@@ -236,7 +236,7 @@ namespace tests
     public void BackOutOfWork()
     {
       var booking = new BlackMaple.CSVOrders.CSVBookings();
-      booking.HandleBackedOutWork("thebackoutid", new[] {
+      booking.HandleBackedOutWork(667788, new[] {
                 new BackedOutPart
                 {
                     Part = "abc",
@@ -284,7 +284,7 @@ namespace tests
       var status = booking.LoadUnscheduledStatus(50);
       status.ScheduledParts.ShouldAllBeEquivalentTo(initialSchParts);
       status.UnscheduledBookings.ShouldAllBeEquivalentTo(initialBookings);
-      Assert.Equal("thebackoutid", status.LatestBackoutId);
+      Assert.Equal(667788, status.LatestBackoutId);
     }
 
     [Fact]
