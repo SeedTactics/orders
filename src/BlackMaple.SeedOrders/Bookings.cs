@@ -108,6 +108,19 @@ namespace BlackMaple.SeedOrders
   }
 
   /// <summary>
+  ///  Represents a part-program to be sent to the machine
+  /// </summary>
+  [DataContract]
+  public class PartProgram
+  {
+    [DataMember]
+    public string ProgramName { get; set; }
+
+    [DataMember]
+    public string ProgramContents { get; set; }
+  }
+
+  /// <summary>
   ///   A <c>DownloadedPart</c> records the parts and quantities that were downloaded into the machine controller as part of a <c>Schedule</c>.
   /// </summary>
   /// <remarks>
@@ -207,6 +220,20 @@ namespace BlackMaple.SeedOrders
     ///</remarks>
     [DataMember]
     public IEnumerable<Casting> Castings { get; set; }
+
+    ///<summary>
+    /// Part programs for parts included in unscheduled bookings
+    ///</summary>
+    ///<remarks>
+    /// <para>
+    ///   The dictionary is keyed by part name and the value is the program name and contents.
+    ///   If given, the programs will be sent into the cell controller along with the generated
+    ///   schedule.  If no programs are included here, OrderLink will assume that the programs
+    ///   already exist in the cell controller or machines.
+    /// </para>
+    ///</remarks>
+    [DataMember(IsRequired = false, EmitDefaultValue = false)]
+    public IDictionary<string, PartProgram> Programs { get; set; }
   }
 
   /// <summary>

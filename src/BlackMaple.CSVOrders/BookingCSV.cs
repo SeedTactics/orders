@@ -175,6 +175,29 @@ namespace BlackMaple.CSVOrders
       return bookingMap;
     }
 
+    private IDictionary<string, PartProgram> LoadPrograms()
+    {
+      var progDir = Path.Combine(CSVBasePath, "programs");
+      if (Directory.Exists(progDir))
+      {
+        var progs = new Dictionary<string, PartProgram>();
+        foreach (var f in Directory.GetFiles(progDir, "*.NC"))
+        {
+          var name = Path.GetFileNameWithoutExtension(f);
+          progs.Add(name, new PartProgram()
+          {
+            ProgramName = name,
+            ProgramContents = File.ReadAllText(Path.Combine(progDir, f))
+          });
+        }
+        return progs;
+      }
+      else
+      {
+        return null;
+      }
+    }
+
     private IEnumerable<ScheduledPartWithoutBooking> LoadScheduledParts()
     {
       var schFile = Path.Combine(CSVBasePath, "scheduled-parts.csv");
@@ -225,7 +248,8 @@ namespace BlackMaple.CSVOrders
         UnscheduledBookings = bookings,
         ScheduledParts = LoadScheduledParts(),
         LatestBackoutId = LoadLatestBackoutId(),
-        Castings = new List<Casting>()
+        Castings = new List<Casting>(),
+        Programs = LoadPrograms()
       };
     }
 

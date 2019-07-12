@@ -50,6 +50,8 @@ namespace tests
     {
       if (Directory.Exists("scheduled-bookings"))
         Directory.Delete("scheduled-bookings", true);
+      if (Directory.Exists("programs"))
+        Directory.Delete("programs", true);
       if (File.Exists("latest-backout-id"))
         File.Delete("latest-backout-id");
       foreach (var f in Directory.GetFiles(".", "scheduled-parts-temp*.csv"))
@@ -146,6 +148,7 @@ namespace tests
       status.UnscheduledBookings.ShouldAllBeEquivalentTo(initialBookings);
       Assert.Empty(status.Castings);
       Assert.Null(status.LatestBackoutId);
+      Assert.Null(status.Programs);
 
       status = booking.LoadUnscheduledStatus(10);
       status.ScheduledParts.ShouldAllBeEquivalentTo(initialSchParts);
@@ -154,12 +157,14 @@ namespace tests
       );
       Assert.Empty(status.Castings);
       Assert.Null(status.LatestBackoutId);
+      Assert.Null(status.Programs);
 
       status = booking.LoadUnscheduledStatus(-1);
       status.ScheduledParts.ShouldAllBeEquivalentTo(initialSchParts);
       status.UnscheduledBookings.ShouldAllBeEquivalentTo(initialBookings);
       Assert.Empty(status.Castings);
       Assert.Null(status.LatestBackoutId);
+      Assert.Null(status.Programs);
     }
 
     [Fact]
@@ -361,6 +366,23 @@ namespace tests
       Assert.Empty(status.Castings);
       Assert.Null(status.LatestBackoutId);
 
+    }
+
+    [Fact]
+    public void LoadPrograms()
+    {
+      Directory.CreateDirectory("programs");
+      File.WriteAllText(Path.Combine("programs", "part1.NC"), "the part1 program");
+
+      var booking = new BlackMaple.CSVOrders.CSVBookings();
+      var status = booking.LoadUnscheduledStatus(-1);
+      status.ScheduledParts.ShouldAllBeEquivalentTo(initialSchParts);
+      status.UnscheduledBookings.ShouldAllBeEquivalentTo(initialBookings);
+      Assert.Empty(status.Castings);
+      Assert.Null(status.LatestBackoutId);
+      status.Programs.ShouldBeEquivalentTo(new Dictionary<string, PartProgram>() {
+        {"part1", new PartProgram() { ProgramName = "part1", ProgramContents = "the part1 program"}}
+      });
     }
   }
 
