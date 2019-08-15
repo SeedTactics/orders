@@ -23,7 +23,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CsvHelper" Version="12.1.1"/>
+    <PackageReference Include="CsvHelper" Version="12.1.2"/>
   </ItemGroup>
 
   <Choose>
@@ -34,7 +34,7 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <PackageReference Include="BlackMaple.SeedOrders" Version="3.*"/>
+        <PackageReference Include="BlackMaple.SeedOrders" Version="4.*"/>
       </ItemGroup>
     </Otherwise>
   </Choose>
