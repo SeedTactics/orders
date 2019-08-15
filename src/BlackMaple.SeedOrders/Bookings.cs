@@ -53,8 +53,17 @@ namespace BlackMaple.SeedOrders
 
     ///<summary>The casting used by this part. Can be null to ignore castings and
     ///just assume castings are always available.</summary>
-    [DataMember]
+    [DataMember(IsRequired = false)]
     public string CastingId { get; set; }
+
+    ///<summary>The program to run. If not given, the program is assumed to be defined in the
+    /// flexibility plan and already loaded in the machine.</summary>
+    [DataMember(IsRequired = false, EmitDefaultValue = false)]
+    public string ProgramName { get; set; }
+
+    ///<summary>The program revision to run.  If zero or not specified, the most recent program revision is used.</summary>
+    [DataMember(IsRequired = false, EmitDefaultValue = false)]
+    public int ProgramRevision { get; set; }
   }
 
   /// <summary>A <c>Booking</c> is an order used for scheduling.</summary>
@@ -105,19 +114,6 @@ namespace BlackMaple.SeedOrders
 
     [DataMember]
     public int Quantity { get; set; }
-  }
-
-  /// <summary>
-  ///  Represents a part-program to be sent to the machine
-  /// </summary>
-  [DataContract]
-  public class PartProgram
-  {
-    [DataMember]
-    public string ProgramName { get; set; }
-
-    [DataMember]
-    public string ProgramContents { get; set; }
   }
 
   /// <summary>
@@ -220,20 +216,6 @@ namespace BlackMaple.SeedOrders
     ///</remarks>
     [DataMember]
     public IEnumerable<Casting> Castings { get; set; }
-
-    ///<summary>
-    /// Part programs for parts included in unscheduled bookings
-    ///</summary>
-    ///<remarks>
-    /// <para>
-    ///   The dictionary is keyed by part name and the value is the program name and contents.
-    ///   If given, the programs will be sent into the cell controller along with the generated
-    ///   schedule.  If no programs are included here, OrderLink will assume that the programs
-    ///   already exist in the cell controller or machines.
-    /// </para>
-    ///</remarks>
-    [DataMember(IsRequired = false, EmitDefaultValue = false)]
-    public IDictionary<string, PartProgram> Programs { get; set; }
   }
 
   /// <summary>

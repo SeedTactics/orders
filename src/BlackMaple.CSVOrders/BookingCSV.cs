@@ -69,6 +69,8 @@ namespace BlackMaple.CSVOrders
       public int Priority { get; set; }
       public string Part { get; set; }
       public int Quantity { get; set; }
+      [CsvHelper.Configuration.Attributes.Optional] public string ProgramName { get; set; }
+      [CsvHelper.Configuration.Attributes.Optional] public int? ProgramRevision { get; set; }
     }
 
     private class ScheduledBookingCsvRow
@@ -156,7 +158,9 @@ namespace BlackMaple.CSVOrders
             BookingId = bookingId,
             Part = row.Part,
             Quantity = row.Quantity,
-            CastingId = null
+            CastingId = null,
+            ProgramName = row.ProgramName,
+            ProgramRevision = row.ProgramRevision ?? 0
           });
 
         }
@@ -173,29 +177,6 @@ namespace BlackMaple.CSVOrders
       }
 
       return bookingMap;
-    }
-
-    private IDictionary<string, PartProgram> LoadPrograms()
-    {
-      var progDir = Path.Combine(CSVBasePath, "programs");
-      if (Directory.Exists(progDir))
-      {
-        var progs = new Dictionary<string, PartProgram>();
-        foreach (var f in Directory.GetFiles(progDir, "*.NC"))
-        {
-          var name = Path.GetFileNameWithoutExtension(f);
-          progs.Add(name, new PartProgram()
-          {
-            ProgramName = name,
-            ProgramContents = File.ReadAllText(Path.Combine(progDir, f))
-          });
-        }
-        return progs;
-      }
-      else
-      {
-        return null;
-      }
     }
 
     private IEnumerable<ScheduledPartWithoutBooking> LoadScheduledParts()
@@ -249,7 +230,6 @@ namespace BlackMaple.CSVOrders
         ScheduledParts = LoadScheduledParts(),
         LatestBackoutId = LoadLatestBackoutId(),
         Castings = new List<Casting>(),
-        Programs = LoadPrograms()
       };
     }
 
