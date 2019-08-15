@@ -6,130 +6,130 @@ using System.Linq;
 
 namespace ExampleOrderIntegration
 {
-    public class BookingContext : DbContext
+  public class BookingContext : DbContext
+  {
+    public class LatestBackoutIdSingleton
     {
-        public class LatestBackoutIdSingleton
-        {
-            public string BackoutId {get; set;}
-        }
-
-        public DbSet<Booking> Bookings { get; set; }
-        public DbSet<ScheduledPartWithoutBooking> ExtraParts { get; set; }
-        public DbSet<LatestBackoutIdSingleton> LatestBackoutId {get;set;}
-        public DbSet<Casting> Castings {get;set;}
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseSqlite("Data Source=bookings.db");
-        }
-
-        protected override void OnModelCreating(ModelBuilder m)
-        {
-            m.Entity<BookingDemand>()
-              .HasKey(p => new { p.BookingId, p.Part });
-            m.Entity<DownloadedPart>()
-              .HasKey(p => new { p.ScheduleId, p.Part });
-            m.Entity<ScheduledPartWithoutBooking>()
-              .HasKey(p => p.Part);
-            m.Entity<LatestBackoutIdSingleton>()
-              .HasKey(x => x.BackoutId);
-            m.Entity<Casting>()
-              .HasKey(x => x.CastingId);
-        }
+      public long? BackoutId { get; set; }
     }
 
-    public class ExampleBookingDatabase : IBookingDatabase
+    public DbSet<Booking> Bookings { get; set; }
+    public DbSet<ScheduledPartWithoutBooking> ExtraParts { get; set; }
+    public DbSet<LatestBackoutIdSingleton> LatestBackoutId { get; set; }
+    public DbSet<Casting> Castings { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        public UnscheduledStatus LoadUnscheduledStatus(int lookaheadDays)
+      optionsBuilder.UseSqlite("Data Source=bookings.db");
+    }
+
+    protected override void OnModelCreating(ModelBuilder m)
+    {
+      m.Entity<BookingDemand>()
+        .HasKey(p => new { p.BookingId, p.Part });
+      m.Entity<DownloadedPart>()
+        .HasKey(p => new { p.ScheduleId, p.Part });
+      m.Entity<ScheduledPartWithoutBooking>()
+        .HasKey(p => p.Part);
+      m.Entity<LatestBackoutIdSingleton>()
+        .HasKey(x => x.BackoutId);
+      m.Entity<Casting>()
+        .HasKey(x => x.CastingId);
+    }
+  }
+
+  public class ExampleBookingDatabase : IBookingDatabase
+  {
+    public UnscheduledStatus LoadUnscheduledStatus(int lookaheadDays)
+    {
+      var endDate = DateTime.Today.AddDays(lookaheadDays);
+      using (var context = new BookingContext())
+      {
+        return new UnscheduledStatus
         {
-            var endDate = DateTime.Today.AddDays(lookaheadDays);
-            using (var context = new BookingContext())
-            {
-                return new UnscheduledStatus
-                {
-                    UnscheduledBookings = context.Bookings
-                        .Where(b => b.ScheduleId == null && (lookaheadDays <= 0 || b.DueDate <= endDate))
-                        .Include(b => b.Parts)
-                        .AsNoTracking()
-                        .ToList(),
-                    ScheduledParts = context.ExtraParts
-                        .AsNoTracking()
-                        .ToList(),
-                    LatestBackoutId = context.LatestBackoutId
-                        .AsNoTracking()
-                        .Select(x => x.BackoutId)
-                        .FirstOrDefault(),
-                    Castings = context.Castings
-                        .AsNoTracking()
-                        .ToList()
-                };
-            }
+          UnscheduledBookings = context.Bookings
+                .Where(b => b.ScheduleId == null && (lookaheadDays <= 0 || b.DueDate <= endDate))
+                .Include(b => b.Parts)
+                .AsNoTracking()
+                .ToList(),
+          ScheduledParts = context.ExtraParts
+                .AsNoTracking()
+                .ToList(),
+          LatestBackoutId = context.LatestBackoutId
+                .AsNoTracking()
+                .Select(x => x.BackoutId)
+                .FirstOrDefault(),
+          Castings = context.Castings
+                .AsNoTracking()
+                .ToList()
+        };
+      }
+    }
+
+    public void CreateSchedule(NewSchedule s)
+    {
+      using (var context = new BookingContext())
+      {
+        //Update the bookings and extra parts tables.
+
+        foreach (var bookingId in s.BookingIds)
+        {
+          var booking = context.Bookings.Single(b => b.BookingId == bookingId);
+          booking.ScheduleId = s.ScheduleId;
         }
 
-        public void CreateSchedule(NewSchedule s)
+        var oldParts = context.ExtraParts.ToDictionary(p => p.Part);
+        var newParts = s.ScheduledParts.ToDictionary(p => p.Part);
+
+        foreach (var p in newParts)
         {
-            using (var context = new BookingContext())
-            {
-                //Update the bookings and extra parts tables.
-
-                foreach (var bookingId in s.BookingIds)
-                {
-                    var booking = context.Bookings.Single(b => b.BookingId == bookingId);
-                    booking.ScheduleId = s.ScheduleId;
-                }
-
-                var oldParts = context.ExtraParts.ToDictionary(p => p.Part);
-                var newParts = s.ScheduledParts.ToDictionary(p => p.Part);
-
-                foreach (var p in newParts)
-                {
-                    if (oldParts.ContainsKey(p.Key))
-                    {
-                        oldParts[p.Key].Quantity = p.Value.Quantity;
-                        oldParts.Remove(p.Key);
-                    }
-                    else
-                    {
-                        context.ExtraParts.Add(p.Value);
-                    }
-                }
-
-                foreach (var p in oldParts)
-                {
-                    context.ExtraParts.Remove(p.Value);
-                }
-
-                //In addition to the above data, you could also store data about the schedule itself
-                //in a schedule table, but keeping data about the schedule itself is not required for
-                //implementing the booking plugin and would just be for your own internal use.
-
-                context.SaveChanges();
-            }
+          if (oldParts.ContainsKey(p.Key))
+          {
+            oldParts[p.Key].Quantity = p.Value.Quantity;
+            oldParts.Remove(p.Key);
+          }
+          else
+          {
+            context.ExtraParts.Add(p.Value);
+          }
         }
 
-        public void HandleBackedOutWork(string backoutId, IEnumerable<BackedOutPart> backedOutParts)
+        foreach (var p in oldParts)
         {
-            using (var context = new BookingContext())
-            {
-                var latest = context.LatestBackoutId.FirstOrDefault();
-                if (latest == null)
-                {
-                    context.LatestBackoutId.Add(new BookingContext.LatestBackoutIdSingleton { BackoutId = backoutId});
-                }
-                else
-                {
-                    latest.BackoutId = backoutId;
-                }
+          context.ExtraParts.Remove(p.Value);
+        }
 
-                foreach (var p in backedOutParts)
-                {
-                    var bookingId = "Reschedule:" + p.Part + ":" + DateTime.UtcNow.ToString("yyy-MM-ddTHH-mm-ssZ");
-                    context.Bookings.Add(new Booking
-                    {
-                        BookingId = bookingId,
-                        DueDate = DateTime.Today,
-                        Priority = 100,
-                        Parts = new List<BookingDemand> {
+        //In addition to the above data, you could also store data about the schedule itself
+        //in a schedule table, but keeping data about the schedule itself is not required for
+        //implementing the booking plugin and would just be for your own internal use.
+
+        context.SaveChanges();
+      }
+    }
+
+    public void HandleBackedOutWork(long backoutId, IEnumerable<BackedOutPart> backedOutParts)
+    {
+      using (var context = new BookingContext())
+      {
+        var latest = context.LatestBackoutId.FirstOrDefault();
+        if (latest == null)
+        {
+          context.LatestBackoutId.Add(new BookingContext.LatestBackoutIdSingleton { BackoutId = backoutId });
+        }
+        else
+        {
+          latest.BackoutId = backoutId;
+        }
+
+        foreach (var p in backedOutParts)
+        {
+          var bookingId = "Reschedule:" + p.Part + ":" + DateTime.UtcNow.ToString("yyy-MM-ddTHH-mm-ssZ");
+          context.Bookings.Add(new Booking
+          {
+            BookingId = bookingId,
+            DueDate = DateTime.Today,
+            Priority = 100,
+            Parts = new List<BookingDemand> {
                             new BookingDemand
                             {
                                 BookingId = bookingId,
@@ -138,10 +138,10 @@ namespace ExampleOrderIntegration
                                 CastingId = null
                             }
                         }
-                    });
-                }
-                context.SaveChanges();
-            }
+          });
         }
+        context.SaveChanges();
+      }
     }
+  }
 }

@@ -11,7 +11,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.*"/>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SQLite" Version="2.*"/>
     <PackageReference Include="FluentAssertions" Version="4.*"/>
-    <PackageReference Include="BlackMaple.SeedOrders" Version="3.*"/>
+    <PackageReference Include="BlackMaple.SeedOrders" Version="4.*"/>
 
     <ProjectReference Include="../plugin/example-order-integration.csproj"/>
   </ItemGroup>
