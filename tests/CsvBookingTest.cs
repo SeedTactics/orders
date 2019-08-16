@@ -283,6 +283,14 @@ namespace tests
                 }
       });
 
+      foreach (var b in initialBookings)
+      {
+        foreach (var p in b.Parts)
+        {
+          p.ProgramName = "";
+        }
+      }
+
       var status = booking.LoadUnscheduledStatus(50);
       status.ScheduledParts.ShouldAllBeEquivalentTo(initialSchParts);
       status.UnscheduledBookings.ShouldAllBeEquivalentTo(initialBookings);

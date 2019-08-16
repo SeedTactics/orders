@@ -314,35 +314,39 @@ namespace BlackMaple.CSVOrders
     public void HandleBackedOutWork(long backoutId, IEnumerable<BackedOutPart> backedOutParts)
     {
       var file = Path.Combine(CSVBasePath, "bookings.csv");
-      var fileExists = System.IO.File.Exists(file);
 
       File.WriteAllText(Path.Combine(CSVBasePath, "latest-backout-id"), backoutId.ToString());
 
-      using (var f = File.Open(file, FileMode.Append, FileAccess.Write, FileShare.None))
-      using (var s = new StreamWriter(f))
+      var orders = new List<UnscheduledCsvRow>();
+
+      if (File.Exists(file))
+      {
+        using (var f = File.OpenRead(file))
+        using (var csv = new CsvHelper.CsvReader(new StreamReader(f)))
+        {
+          orders.AddRange(csv.GetRecords<UnscheduledCsvRow>());
+        }
+      }
+
+      foreach (var p in backedOutParts)
+      {
+        orders.Add(new UnscheduledCsvRow()
+        {
+          Id = "Reschedule:" + p.Part + ":" + DateTime.UtcNow.ToString("yyy-MM-ddTHH-mm-ssZ"),
+          DueDate = DateTime.Today,
+          Priority = 100,
+          Part = p.Part,
+          Quantity = p.Quantity
+        });
+      }
+
+      using (var s = new StreamWriter(file))
       using (var csv = new CsvHelper.CsvWriter(s))
       {
         csv.Configuration.TypeConverterOptionsCache.GetOptions<DateTime>().Formats
                 = new string[] { "yyyy-MM-dd" };
 
-        if (!fileExists)
-        {
-          csv.WriteHeader<UnscheduledCsvRow>();
-          csv.NextRecord();
-        }
-
-        foreach (var p in backedOutParts)
-        {
-          csv.WriteRecord<UnscheduledCsvRow>(new UnscheduledCsvRow()
-          {
-            Id = "Reschedule:" + p.Part + ":" + DateTime.UtcNow.ToString("yyy-MM-ddTHH-mm-ssZ"),
-            DueDate = DateTime.Today,
-            Priority = 100,
-            Part = p.Part,
-            Quantity = p.Quantity
-          });
-          csv.NextRecord();
-        }
+        csv.WriteRecords(orders);
       }
     }
   }
