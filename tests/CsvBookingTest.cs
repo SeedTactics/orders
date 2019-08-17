@@ -251,7 +251,7 @@ namespace tests
                 }
             });
 
-      var bookingId = "Reschedule:abc:" + DateTime.UtcNow.ToString("yyy-MM-ddTHH-mm-ssZ");
+      var bookingId = "Reschedule-abc-" + DateTime.UtcNow.ToString("yyy-MM-ddTHH-mm-ssZ");
       initialBookings.Add(new Booking
       {
         BookingId = bookingId,
@@ -267,7 +267,7 @@ namespace tests
                 }
       });
 
-      bookingId = "Reschedule:def:" + DateTime.UtcNow.ToString("yyy-MM-ddTHH-mm-ssZ");
+      bookingId = "Reschedule-def-" + DateTime.UtcNow.ToString("yyy-MM-ddTHH-mm-ssZ");
       initialBookings.Add(new Booking
       {
         BookingId = bookingId,
@@ -347,12 +347,12 @@ namespace tests
       var nowStr = now.ToString("yyyy-MM-dd-HH-mm-ss");
 
 
-      initialBookings[0].BookingId = "B:" + nowStr + ":0";
-      initialBookings[0].Parts[0].BookingId = "B:" + nowStr + ":0";
-      initialBookings[1].BookingId = "B:" + nowStr + ":1";
-      initialBookings[1].Parts[0].BookingId = "B:" + nowStr + ":1";
-      initialBookings[2].BookingId = "B:" + nowStr + ":2";
-      initialBookings[2].Parts[0].BookingId = "B:" + nowStr + ":2";
+      initialBookings[0].BookingId = "B" + nowStr + "-0";
+      initialBookings[0].Parts[0].BookingId = "B" + nowStr + "-0";
+      initialBookings[1].BookingId = "B" + nowStr + "-1";
+      initialBookings[1].Parts[0].BookingId = "B" + nowStr + "-1";
+      initialBookings[2].BookingId = "B" + nowStr + "-2";
+      initialBookings[2].Parts[0].BookingId = "B" + nowStr + "-2";
 
       var booking = new BlackMaple.CSVOrders.CSVBookings();
       booking.GetUtcNow = () => now;

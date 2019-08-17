@@ -130,7 +130,7 @@ namespace BlackMaple.CSVOrders
 
           if (string.IsNullOrEmpty(bookingId))
           {
-            bookingId = "B:" + GetUtcNow().ToString("yyyy-MM-dd-HH-mm-ss") + ":" + orderCntr.ToString();
+            bookingId = "B" + GetUtcNow().ToString("yyyy-MM-dd-HH-mm-ss") + "-" + orderCntr.ToString();
             orderCntr += 1;
           }
 
@@ -328,7 +328,7 @@ namespace BlackMaple.CSVOrders
       {
         orders.Add(new UnscheduledCsvRow()
         {
-          Id = "Reschedule:" + p.Part + ":" + DateTime.UtcNow.ToString("yyy-MM-ddTHH-mm-ssZ"),
+          Id = "Reschedule-" + p.Part + "-" + DateTime.UtcNow.ToString("yyy-MM-ddTHH-mm-ssZ"),
           DueDate = DateTime.Today,
           Priority = 100,
           Part = p.Part,
