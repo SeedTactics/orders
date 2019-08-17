@@ -283,14 +283,6 @@ namespace tests
                 }
       });
 
-      foreach (var b in initialBookings)
-      {
-        foreach (var p in b.Parts)
-        {
-          p.ProgramName = "";
-        }
-      }
-
       var status = booking.LoadUnscheduledStatus(50);
       status.ScheduledParts.ShouldAllBeEquivalentTo(initialSchParts);
       status.UnscheduledBookings.ShouldAllBeEquivalentTo(initialBookings);
@@ -373,70 +365,6 @@ namespace tests
 
     }
 
-    [Fact]
-    public void LoadPrograms()
-    {
-      // only works with bookings which have only a single part
-      initialBookings.Clear();
-      initialBookings.Add(new Booking
-      {
-        BookingId = "booking1",
-        Priority = 100,
-        DueDate = DateTime.Today.AddDays(5),
-        ScheduleId = null,
-        Parts = new List<BookingDemand> {
-                        new BookingDemand { BookingId = "booking1", Part = "part1", Quantity = 44, ProgramName="prog1"},
-                     }
-      });
-      initialBookings.Add(new Booking
-      {
-        BookingId = "booking2",
-        Priority = 200,
-        DueDate = DateTime.Today.AddDays(15),
-        ScheduleId = null,
-        Parts = new List<BookingDemand> {
-                        new BookingDemand { BookingId = "booking2", Part = "part2", ProgramName = "prog2", ProgramRevision = 100}
-                     }
-      });
-      initialBookings.Add(new Booking
-      {
-        BookingId = "booking3",
-        Priority = 300,
-        DueDate = DateTime.Today.AddDays(30),
-        ScheduleId = null,
-        Parts = new List<BookingDemand> {
-                        new BookingDemand { BookingId = "booking3", Part = "part3", Quantity = 222, ProgramName = "prog3", ProgramRevision = -1}
-                     }
-      });
-
-      using (var f = File.Open("bookings.csv", FileMode.Create))
-      {
-        using (var s = new StreamWriter(f))
-        {
-          s.WriteLine("Id,DueDate,Priority,Part,Quantity,ProgramName,ProgramRevision");
-          foreach (var b in initialBookings)
-          {
-            foreach (var p in b.Parts)
-            {
-              s.WriteLine(
-                  b.BookingId + ","
-                + b.DueDate.ToString("yyyy-MM-dd") + ","
-                + b.Priority.ToString() + ","
-                + p.Part + "," + p.Quantity.ToString() + ","
-                + p.ProgramName + "," + p.ProgramRevision.ToString()
-              );
-            }
-          }
-        }
-      }
-
-      var booking = new BlackMaple.CSVOrders.CSVBookings();
-      var status = booking.LoadUnscheduledStatus(50);
-      status.ScheduledParts.ShouldAllBeEquivalentTo(initialSchParts);
-      status.UnscheduledBookings.ShouldAllBeEquivalentTo(initialBookings);
-      Assert.Empty(status.Castings);
-      Assert.Null(status.LatestBackoutId);
-    }
   }
 
   public class CsvCreateBookingTest
@@ -456,9 +384,9 @@ namespace tests
       var b = File.ReadAllLines(bookFile);
 
       b.ShouldAllBeEquivalentTo(new string[] {
-        "Id,DueDate,Priority,Part,Quantity,ProgramName,ProgramRevision",
-        "12345," + DateTime.Today.AddDays(10).ToString("yyyy-MM-dd") + ",100,part1,50,,",
-        "98765," + DateTime.Today.AddDays(12).ToString("yyyy-MM-dd") + ",100,part2,77,,"
+        "Id,DueDate,Priority,Part,Quantity",
+        "12345," + DateTime.Today.AddDays(10).ToString("yyyy-MM-dd") + ",100,part1,50",
+        "98765," + DateTime.Today.AddDays(12).ToString("yyyy-MM-dd") + ",100,part2,77"
       });
 
     }

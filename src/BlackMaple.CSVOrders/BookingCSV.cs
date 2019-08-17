@@ -69,8 +69,6 @@ namespace BlackMaple.CSVOrders
       public int Priority { get; set; }
       public string Part { get; set; }
       public int Quantity { get; set; }
-      [CsvHelper.Configuration.Attributes.Optional] public string ProgramName { get; set; }
-      [CsvHelper.Configuration.Attributes.Optional] public int? ProgramRevision { get; set; }
     }
 
     private class ScheduledBookingCsvRow
@@ -159,8 +157,6 @@ namespace BlackMaple.CSVOrders
             Part = row.Part,
             Quantity = row.Quantity,
             CastingId = null,
-            ProgramName = row.ProgramName,
-            ProgramRevision = row.ProgramRevision ?? 0
           });
 
         }
