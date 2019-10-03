@@ -2,6 +2,7 @@ name: CI
 
 on:
   release:
+    branches:
     - master
 
 jobs:
