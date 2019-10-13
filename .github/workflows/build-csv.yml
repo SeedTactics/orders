@@ -1,0 +1,24 @@
+name: build-csv
+
+on:
+  push:
+    tags:
+      - csv-*
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Build
+        shell: pwsh
+        env:
+          GITHUB_REF: ${{ github.ref }}
+        run: |
+          $VER = $ENV:GITHUB_REF.Substring(14) # Remove refs/tags/csv-
+          dotnet pack -c Release --include-symbols /p:Version="$VER" src/BlackMaple.CSVOrders
+
+      - name: Publish To Nuget
+        run: dotnet nuget push -k ${{ secrets.NUGET_KEY }} -s https://api.nuget.org/v3/index.json src\BlackMaple.CSVOrders\bin\Release\*.nupkg

@@ -10,16 +10,15 @@
     <Product>SeedTactics</Product>
     <Copyright>Black Maple Software, LLC</Copyright>
     <Authors>John Lenz</Authors>
-    <PackageLicenseUrl>https://opensource.org/licenses/BSD-3-Clause</PackageLicenseUrl>
-    <PackageProjectUrl>https://www.seedtactics.com</PackageProjectUrl>
-    <RepositoryUrl>https://bitbucket.org/blackmaple/seedorders</RepositoryUrl>
-    <RepositoryType>hg</RepositoryType>
     <Description>
-      This package contains the order plugin API for SeedTactics.
-      This plugin is used to communicate orders between the ERP and the SeedTactics software.
-
-      For documentation and source code, visit [the bitbucket project](https://bitbucket.org/blackmaple/seedorders).
+      This package contains the order plugin API for SeedTactics, which is used to communicate orders between the ERP and the SeedTactics software.
     </Description>
+
+    <PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
+    <PackageProjectUrl>https://www.seedtactics.com</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/SeedTactics/orders.git</RepositoryUrl>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <Choose>
