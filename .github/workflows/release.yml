@@ -1,0 +1,31 @@
+name: release
+
+on:
+  release:
+    branches:
+    - master
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: Intall GitVersion
+      run: dotnet tool install -g GitVersion.Tool
+      
+    - name: Build SeedOrders
+      shell: pwsh
+      run: |
+        mkdir pkgs
+        cd src/BlackMaple.SeedOrders
+        $ver = (dotnet gitversion) | ConvertFrom-Json
+        dotnet pack -c Release --include-symbols /p:VersionPrefix=$(ver.SemVer)
+        cp bin/Release/BlackMaple.SeedOrders*.nupkg ../../pkgs
+        
+    - name: Upload Artifact
+      uses: actions/upload-artifact@master
+      with:
+        name: Nuget Packages
+        path: pkgs
