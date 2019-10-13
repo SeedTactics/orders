@@ -1,7 +1,5 @@
 # SeedTactics Order Integration
 
-[![Build status](https://ci.appveyor.com/api/projects/status/89aqgtnjbpudcu01?svg=true)](https://ci.appveyor.com/project/wuzzeb/seedorders)
-
 This repository contains the order plugin API for [SeedTactics](https://www.seedtactics.com) and an example implementation of
 the plugin API. This plugin is used to communicate orders between the ERP and the SeedTactics Orderlink software. For an overview
 of this process, see the [whitepaper](https://www.seedtactics.com/docs/concepts/orders-erp-automation).
@@ -18,8 +16,8 @@ plugin DLL and creates an instance using the default no-parameter constructor.
 
 For documentation, first read the [whitepaper](https://www.seedtactics.com/docs/concepts/orders-erp-automation) for
 an overview of how orders, bookings, and workorders fit into the entire SeedTactics ecosystem.
-Then, see [Bookings.cs](https://bitbucket.org/blackmaple/seedorders/src/tip/src/BlackMaple.SeedOrders/Bookings.cs)
-and [Workorders.cs](https://bitbucket.org/blackmaple/seedorders/src/tip/src/BlackMaple.SeedOrders/Workorders.cs). The comments
+Then, see [Bookings.cs](src/BlackMaple.SeedOrders/Bookings.cs)
+and [Workorders.cs](src/BlackMaple.SeedOrders/Workorders.cs). The comments
 in these files describe in detail the API. In particular, the API is mainly concerned just with copying and accessing data in
 the ERP; no complex calculations are needed.
 
