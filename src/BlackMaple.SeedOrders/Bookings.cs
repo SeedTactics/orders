@@ -63,7 +63,7 @@ namespace BlackMaple.SeedOrders
 
     ///<summary>The program revision to run.  If zero or not specified, the most recent program revision is used.</summary>
     [DataMember(IsRequired = false, EmitDefaultValue = false)]
-    public int ProgramRevision { get; set; }
+    public long? ProgramRevision { get; set; }
   }
 
   /// <summary>A <c>Booking</c> is an order used for scheduling.</summary>
@@ -169,6 +169,19 @@ namespace BlackMaple.SeedOrders
     public int Quantity { get; set; }
   }
 
+  [DataContract]
+  public class ProgramEntry
+  {
+    [DataMember]
+    public string ProgramName { get; set; }
+    [DataMember]
+    public long? Revision { get; set; }
+    [DataMember]
+    public string Comment { get; set; }
+    [DataMember]
+    public string ProgramContent { get; set; }
+  }
+
   /// <summary>Contains information about unscheduled bookings, scheduled parts, and pending transactions.</summary>
   /// <remarks>
   ///  <para>
@@ -216,6 +229,19 @@ namespace BlackMaple.SeedOrders
     ///</remarks>
     [DataMember]
     public IEnumerable<Casting> Castings { get; set; }
+
+    ///<summary>
+    ///List of program revisions and their content
+    ///</summary>
+    ///<remarks>
+    /// <para>
+    ///   Programs which appear in BookingDemands which are not in this list are assumed
+    ///   to already exist in the cell controller.  If programs are managed entirely in the
+    ///   cell controller, this list can be empty or null
+    /// </para>
+    ///</remarks>
+    [DataMember(IsRequired = false, EmitDefaultValue = false)]
+    public IEnumerable<ProgramEntry> Programs { get; set; }
   }
 
   /// <summary>
