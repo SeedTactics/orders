@@ -38,6 +38,45 @@ using System.Runtime.Serialization;
 namespace BlackMaple.SeedOrders
 {
 
+  /// <summary>A <c>MainProgram</c> contains the program information used to cut a single process on one machine.</summary>
+  [DataContract]
+  public class MainProgram
+  {
+    /// <summary>Identifies the process on the part that this program is for.</summary>
+    [DataMember]
+    public int ProcessNumber { get; set; }
+
+    /// <summary>Identifies which machine stop on the part that this program is for (only needed if a process has multiple
+    /// machining stops before unload).</summary>
+    [DataMember]
+    public string MachineGroup { get; set; }
+
+    /// <summary>The program name, used to find the program contents.</summary>
+    [DataMember]
+    public string ProgramName { get; set; }
+
+    ///<summary>The program revision to run.  If zero or not specified, the most recent program revision is used.</summary>
+    [DataMember(IsRequired = false, EmitDefaultValue = false)]
+    public long? Revision { get; set; }
+
+    /// <summary>An optional list of subprograms.</summary>
+    [DataMember(IsRequired = false, EmitDefaultValue = false)]
+    public IEnumerable<SubProgram> SubPrograms { get; set; }
+  }
+
+  /// <summary> A <c>SubProgram</c> is a helper program called by a main program.</summary>
+  [DataContract]
+  public class SubProgram
+  {
+    /// <summary>The program name, used to find the program contents.</summary>
+    [DataMember]
+    public string ProgramName { get; set; }
+
+    ///<summary>The program revision to run.  If zero or not specified, the most recent program revision is used.</summary>
+    [DataMember(IsRequired = false, EmitDefaultValue = false)]
+    public long? Revision { get; set; }
+  }
+
   /// <summary>A <c>BookingDemand</c> is an order for a single part and quantity and is held inside a <c>Booking</c>.</summary>
   [DataContract]
   public class BookingDemand
@@ -56,14 +95,10 @@ namespace BlackMaple.SeedOrders
     [DataMember(IsRequired = false)]
     public string CastingId { get; set; }
 
-    ///<summary>The program to run. If not given, the program is assumed to be defined in the
+    ///<summary>The programs to run. If not given, the programs are assumed to be defined in the
     /// flexibility plan and already loaded in the machine.</summary>
     [DataMember(IsRequired = false, EmitDefaultValue = false)]
-    public string ProgramName { get; set; }
-
-    ///<summary>The program revision to run.  If zero or not specified, the most recent program revision is used.</summary>
-    [DataMember(IsRequired = false, EmitDefaultValue = false)]
-    public long? ProgramRevision { get; set; }
+    public IEnumerable<MainProgram> Programs { get; set; }
   }
 
   /// <summary>A <c>Booking</c> is an order used for scheduling.</summary>
@@ -237,7 +272,7 @@ namespace BlackMaple.SeedOrders
     /// <para>
     ///   Programs which appear in BookingDemands which are not in this list are assumed
     ///   to already exist in the cell controller.  If programs are managed entirely in the
-    ///   cell controller, this list can be empty or null
+    ///   cell controller, this list can be empty or null.
     /// </para>
     ///</remarks>
     [DataMember(IsRequired = false, EmitDefaultValue = false)]
