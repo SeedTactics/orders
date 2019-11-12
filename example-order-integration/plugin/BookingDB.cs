@@ -26,7 +26,9 @@ namespace ExampleOrderIntegration
     protected override void OnModelCreating(ModelBuilder m)
     {
       m.Entity<BookingDemand>()
-        .HasKey(p => new { p.BookingId, p.Part });
+        .Ignore(p => p.Programs)
+        .HasKey(p => new { p.BookingId, p.Part })
+        ;
       m.Entity<DownloadedPart>()
         .HasKey(p => new { p.ScheduleId, p.Part });
       m.Entity<ScheduledPartWithoutBooking>()
