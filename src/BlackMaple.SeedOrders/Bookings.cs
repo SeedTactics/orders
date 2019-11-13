@@ -58,23 +58,6 @@ namespace BlackMaple.SeedOrders
     ///<summary>The program revision to run.  If zero or not specified, the most recent program revision is used.</summary>
     [DataMember(IsRequired = false, EmitDefaultValue = false)]
     public long? Revision { get; set; }
-
-    /// <summary>An optional list of subprograms.</summary>
-    [DataMember(IsRequired = false, EmitDefaultValue = false)]
-    public IEnumerable<SubProgram> SubPrograms { get; set; }
-  }
-
-  /// <summary> A <c>SubProgram</c> is a helper program called by a main program.</summary>
-  [DataContract]
-  public class SubProgram
-  {
-    /// <summary>The program name, used to find the program contents.</summary>
-    [DataMember]
-    public string ProgramName { get; set; }
-
-    ///<summary>The program revision to run.  If zero or not specified, the most recent program revision is used.</summary>
-    [DataMember(IsRequired = false, EmitDefaultValue = false)]
-    public long? Revision { get; set; }
   }
 
   /// <summary>A <c>BookingDemand</c> is an order for a single part and quantity and is held inside a <c>Booking</c>.</summary>
