@@ -61,16 +61,25 @@ namespace BlackMaple.SeedOrders
 
     public PluginHost(string pluginDll)
     {
-      var a = Assembly.LoadFrom(pluginDll);
-      foreach (var t in a.GetTypes())
+      try
       {
-        foreach (var i in t.GetInterfaces())
+        var a = Assembly.LoadFrom(pluginDll);
+        foreach (var t in a.GetTypes())
         {
-          if (_bookings == null && i == typeof(IBookingDatabase))
-            _bookings = (IBookingDatabase)Activator.CreateInstance(t);
-          if (_workorders == null && i == typeof(IWorkorderDatabase))
-            _workorders = (IWorkorderDatabase)Activator.CreateInstance(t);
+          foreach (var i in t.GetInterfaces())
+          {
+            if (_bookings == null && i == typeof(IBookingDatabase))
+              _bookings = (IBookingDatabase)Activator.CreateInstance(t);
+            if (_workorders == null && i == typeof(IWorkorderDatabase))
+              _workorders = (IWorkorderDatabase)Activator.CreateInstance(t);
+          }
         }
+      }
+      catch (Exception ex)
+      {
+        var dir = System.Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+        System.IO.File.WriteAllText(System.IO.Path.Combine(dir, "OrderLink-plugin-error.txt"), ex.ToString());
+        throw ex;
       }
     }
 
