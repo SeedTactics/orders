@@ -4,6 +4,7 @@
     <PackageId>BlackMaple.SeedOrders</PackageId>
     <AssemblyName>BlackMaple.SeedOrders</AssemblyName>
     <OutputType>Library</OutputType>
+    <TargetFramework>netstandard2.0</TargetFramework>
 
     <Title>SeedTactics Order API</Title>
     <Company>Black Maple Software, LLC</Company>
@@ -21,24 +22,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
-  <Choose>
-      <When Condition="$(OS) == 'Unix'">
-          <PropertyGroup>
-              <TargetFramework>netstandard2.0</TargetFramework>
-          </PropertyGroup>
-      </When>
-      <When Condition="$(OS) == 'Windows_NT'">
-          <PropertyGroup>
-              <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
-          </PropertyGroup>
-      </When>
-  </Choose>
-
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-19367-01" PrivateAssets="All"/>
-  </ItemGroup>
-
-  <ItemGroup Condition="$(TargetFramework) == 'net461'">
-    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
   </ItemGroup>
 </Project>
