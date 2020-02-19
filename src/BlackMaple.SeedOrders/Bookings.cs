@@ -298,6 +298,12 @@ namespace BlackMaple.SeedOrders
     public int Quantity { get; set; }
   }
 
+  public class Backout
+  {
+    public long BackoutId { get; set; }
+    public List<BackedOutPart> Parts { get; set; }
+  }
+
   /// <summary>
   ///   The main interface to interact with bookings.
   /// </summary>
