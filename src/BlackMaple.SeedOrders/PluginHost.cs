@@ -102,6 +102,16 @@ namespace BlackMaple.SeedOrders
       }
     }
 
+    public bool HasBookingAPI()
+    {
+      return _bookings != null;
+    }
+
+    public bool HasWorkorderAPI()
+    {
+      return _workorders != null;
+    }
+
     #region Booking API
     public string LoadUnscheduledStatusJson(int lookaheadDays)
     {
