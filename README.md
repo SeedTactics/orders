@@ -2,7 +2,7 @@
 
 This repository contains the order plugin API for [SeedTactics](https://www.seedtactics.com) and an example implementation of
 the plugin API. This plugin is used to communicate orders between the ERP and the SeedTactics Orderlink software. For an overview
-of this process, see the [whitepaper](https://www.seedtactics.com/docs/concepts/orders-erp-automation).
+of this process, see the [whitepaper](https://www.seedtactics.com/docs/tactics/orders-erp-automation).
 
 ## Plugin API Source Code
 
@@ -14,7 +14,7 @@ assembly from NuGet and implement the `IBookingDatabase` and `IWorkorderDatabase
 a default no-parameter constructor. When loading the plugin, the SeedTactics software searches all types in the
 plugin DLL and creates an instance using the default no-parameter constructor.
 
-For documentation, first read the [whitepaper](https://www.seedtactics.com/docs/concepts/orders-erp-automation) for
+For documentation, first read the [whitepaper](https://www.seedtactics.com/docs/tactics/orders-erp-automation) for
 an overview of how orders, bookings, and workorders fit into the entire SeedTactics ecosystem.
 Then, see [Bookings.cs](src/BlackMaple.SeedOrders/Bookings.cs)
 and [Workorders.cs](src/BlackMaple.SeedOrders/Workorders.cs). The comments
