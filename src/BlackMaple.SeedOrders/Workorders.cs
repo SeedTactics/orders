@@ -1,4 +1,4 @@
-/* Copyright (c) 2017, John Lenz
+/* Copyright (c) 2020, John Lenz
 
 All rights reserved.
 
@@ -154,35 +154,4 @@ namespace BlackMaple.SeedOrders
     public DateTime FillUTC { get; set; }
     public WorkorderResources Resources { get; set; }
   }
-
-  /// <summary>
-  ///   The main interface to interact with workorders.
-  /// </summary>
-  /// <remarks>
-  ///   <para>
-  ///     Each order plugin must create a class which implements this interface.  Our program will instantiate the class once
-  ///     and re-use it for all operations.  Each operation should interact with the ERP database in a single transaction.
-  ///   </para>
-  /// </remarks>
-  public interface IWorkorderDatabase
-  {
-    /// <summary>
-    ///   Load all unfilled workorders.
-    /// </summary>
-    IEnumerable<Workorder> LoadUnfilledWorkorders(int lookaheadDays);
-
-    /// <summary>
-    ///   Load all unfilled workorders for the given part.
-    /// </summary>
-    IEnumerable<Workorder> LoadUnfilledWorkorders(string part);
-
-    /// <summary>
-    ///   Mark the given workorder as filled.
-    /// </summary>
-    void MarkWorkorderAsFilled(string workorderId,
-                               DateTime fillUTC,
-                               WorkorderResources resources
-                              );
-  }
-
 }

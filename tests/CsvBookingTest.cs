@@ -1,4 +1,4 @@
-/* Copyright (c) 2019, John Lenz
+/* Copyright (c) 2020, John Lenz
 
 All rights reserved.
 
@@ -68,8 +68,8 @@ namespace tests
         DueDate = DateTime.Today.AddDays(5),
         ScheduleId = null,
         Parts = new List<BookingDemand> {
-                        new BookingDemand { BookingId = "booking1", Part = "part1", Quantity = 44, CastingId=null},
-                        new BookingDemand { BookingId = "booking1", Part = "part2", Quantity = 66, CastingId=null}
+                        new BookingDemand { BookingId = "booking1", Part = "part1", Quantity = 44},
+                        new BookingDemand { BookingId = "booking1", Part = "part2", Quantity = 66}
                      }
       });
       initialBookings.Add(new Booking
@@ -143,25 +143,15 @@ namespace tests
     public void LoadUnscheduledStatus()
     {
       var booking = new BlackMaple.CSVOrders.CSVBookings();
-      var status = booking.LoadUnscheduledStatus(50);
-      status.ScheduledParts.ShouldAllBeEquivalentTo(initialSchParts);
-      status.UnscheduledBookings.ShouldAllBeEquivalentTo(initialBookings);
-      Assert.Empty(status.Castings);
-      Assert.Null(status.LatestBackoutId);
+      booking.LoadScheduledParts().ShouldAllBeEquivalentTo(initialSchParts);
+      booking.LoadUnscheduledBookings(50).Values.ShouldAllBeEquivalentTo(initialBookings);
+      Assert.Null(booking.LoadLatestBackoutId());
 
-      status = booking.LoadUnscheduledStatus(10);
-      status.ScheduledParts.ShouldAllBeEquivalentTo(initialSchParts);
-      status.UnscheduledBookings.ShouldAllBeEquivalentTo(
+      booking.LoadUnscheduledBookings(10).Values.ShouldAllBeEquivalentTo(
           new[] { initialBookings[0] }
       );
-      Assert.Empty(status.Castings);
-      Assert.Null(status.LatestBackoutId);
 
-      status = booking.LoadUnscheduledStatus(-1);
-      status.ScheduledParts.ShouldAllBeEquivalentTo(initialSchParts);
-      status.UnscheduledBookings.ShouldAllBeEquivalentTo(initialBookings);
-      Assert.Empty(status.Castings);
-      Assert.Null(status.LatestBackoutId);
+      booking.LoadUnscheduledBookings(null).Values.ShouldAllBeEquivalentTo(initialBookings);
     }
 
     [Fact]
@@ -193,12 +183,11 @@ namespace tests
           });
 
       //check status
-      var status = booking.LoadUnscheduledStatus(50);
-      status.ScheduledParts.ShouldAllBeEquivalentTo(schParts);
-      status.UnscheduledBookings.ShouldAllBeEquivalentTo(
+      booking.LoadScheduledParts().ShouldAllBeEquivalentTo(schParts);
+      booking.LoadUnscheduledBookings(50).Values.ShouldAllBeEquivalentTo(
           new Booking[] { initialBookings[2] }
       );
-      Assert.Null(status.LatestBackoutId);
+      Assert.Null(booking.LoadLatestBackoutId());
 
       var sch1 = File.ReadAllLines("scheduled-bookings/booking1.csv");
       var sch2 = File.ReadAllLines("scheduled-bookings/booking2.csv");
@@ -225,20 +214,22 @@ namespace tests
             });
 
       var booking = new BlackMaple.CSVOrders.CSVBookings();
-      var status = booking.LoadUnscheduledStatus(50);
-      status.ScheduledParts.ShouldAllBeEquivalentTo(new ScheduledPartWithoutBooking[] {
+      booking.LoadScheduledParts().ShouldAllBeEquivalentTo(new ScheduledPartWithoutBooking[] {
                 new ScheduledPartWithoutBooking { Part = "mypart", Quantity = 12},
                 new ScheduledPartWithoutBooking { Part = "otherpart", Quantity = 17}
             });
-      status.UnscheduledBookings.ShouldAllBeEquivalentTo(initialBookings);
-      Assert.Null(status.LatestBackoutId);
+      booking.LoadUnscheduledBookings(null).Values.ShouldAllBeEquivalentTo(initialBookings);
+      Assert.Null(booking.LoadLatestBackoutId());
     }
 
     [Fact]
     public void BackOutOfWork()
     {
       var booking = new BlackMaple.CSVOrders.CSVBookings();
-      booking.HandleBackedOutWork(667788, new[] {
+      booking.HandleBackedOutWork(new Backout()
+      {
+        BackoutId = 667788,
+        Parts = new List<BackedOutPart> {
                 new BackedOutPart
                 {
                     Part = "abc",
@@ -249,7 +240,8 @@ namespace tests
                     Part = "def",
                     Quantity = 193
                 }
-            });
+            }
+      });
 
       var bookingId = "Reschedule-abc-" + DateTime.UtcNow.ToString("yyy-MM-ddTHH-mm-ssZ");
       initialBookings.Add(new Booking
@@ -283,10 +275,9 @@ namespace tests
                 }
       });
 
-      var status = booking.LoadUnscheduledStatus(50);
-      status.ScheduledParts.ShouldAllBeEquivalentTo(initialSchParts);
-      status.UnscheduledBookings.ShouldAllBeEquivalentTo(initialBookings);
-      Assert.Equal(667788, status.LatestBackoutId);
+      booking.LoadScheduledParts().ShouldAllBeEquivalentTo(initialSchParts);
+      booking.LoadUnscheduledBookings(null).Values.ShouldAllBeEquivalentTo(initialBookings);
+      Assert.Equal(667788, booking.LoadLatestBackoutId());
     }
 
     [Fact]
@@ -301,7 +292,7 @@ namespace tests
         DueDate = DateTime.Today.AddDays(5),
         ScheduleId = null,
         Parts = new List<BookingDemand> {
-                        new BookingDemand { BookingId = "booking1", Part = "part1", Quantity = 44, CastingId=null},
+                        new BookingDemand { BookingId = "booking1", Part = "part1", Quantity = 44},
                      }
       });
       initialBookings.Add(new Booking
@@ -357,11 +348,9 @@ namespace tests
       var booking = new BlackMaple.CSVOrders.CSVBookings();
       booking.GetUtcNow = () => now;
 
-      var status = booking.LoadUnscheduledStatus(50);
-      status.ScheduledParts.ShouldAllBeEquivalentTo(initialSchParts);
-      status.UnscheduledBookings.ShouldAllBeEquivalentTo(initialBookings);
-      Assert.Empty(status.Castings);
-      Assert.Null(status.LatestBackoutId);
+      booking.LoadScheduledParts().ShouldAllBeEquivalentTo(initialSchParts);
+      booking.LoadUnscheduledBookings(null).Values.ShouldAllBeEquivalentTo(initialBookings);
+      Assert.Null(booking.LoadLatestBackoutId());
 
     }
 
@@ -379,7 +368,7 @@ namespace tests
         System.IO.File.Delete(bookFile);
       var booking = new BlackMaple.CSVOrders.CSVBookings();
       booking.CSVBasePath = "create-book-test";
-      booking.LoadUnscheduledStatus(1);
+      booking.LoadUnscheduledBookings(1);
 
       var b = File.ReadAllLines(bookFile);
 

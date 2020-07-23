@@ -1,4 +1,4 @@
-/* Copyright (c) 2019, John Lenz
+/* Copyright (c) 2020, John Lenz
 
 All rights reserved.
 
@@ -36,13 +36,14 @@ using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using BlackMaple.SeedOrders;
+using System.Globalization;
 
 namespace BlackMaple.CSVOrders
 {
   ///<summary>
   ///  Implement management of orders via CSV files for simpler integration into ERP systems
   ///</summary>
-  public class CSVBookings : IBookingDatabase
+  public class CSVBookings
   {
     private string _csvBase = null;
     public string CSVBasePath
@@ -108,7 +109,7 @@ namespace BlackMaple.CSVOrders
       }
     }
 
-    private Dictionary<string, Booking> LoadUnscheduledBookings()
+    public Dictionary<string, Booking> LoadUnscheduledBookings(int? lookaheadDays = null)
     {
       var bookingMap = new Dictionary<string, Booking>();
       var pth = Path.Combine(CSVBasePath, "bookings.csv");
@@ -119,7 +120,8 @@ namespace BlackMaple.CSVOrders
       }
 
       using (var f = File.OpenRead(pth))
-      using (var csv = new CsvHelper.CsvReader(new StreamReader(f)))
+      using (var sreader = new StreamReader(f))
+      using (var csv = new CsvHelper.CsvReader(sreader))
       {
 
         var orderCntr = 0;
@@ -134,14 +136,14 @@ namespace BlackMaple.CSVOrders
             orderCntr += 1;
           }
 
-          Booking work;
+          Booking book;
           if (bookingMap.ContainsKey(bookingId))
           {
-            work = bookingMap[bookingId];
+            book = bookingMap[bookingId];
           }
           else
           {
-            work = new Booking
+            book = new Booking
             {
               BookingId = bookingId,
               Priority = row.Priority,
@@ -149,24 +151,29 @@ namespace BlackMaple.CSVOrders
               Parts = new List<BookingDemand>(),
               ScheduleId = null
             };
-            bookingMap.Add(bookingId, work);
+            bookingMap.Add(bookingId, book);
           }
-          work.Parts.Add(new BookingDemand
+          book.Parts.Add(new BookingDemand
           {
             BookingId = bookingId,
             Part = row.Part,
             Quantity = row.Quantity,
-            CastingId = null,
           });
 
         }
 
       }
 
+      DateTime? endDate = null;
+      if (lookaheadDays.HasValue && lookaheadDays.Value > 0)
+      {
+        endDate = DateTime.Today.AddDays(lookaheadDays.Value);
+      }
+
       foreach (var id in bookingMap.Keys.ToList())
       {
         var f = Path.Combine(CSVBasePath, Path.Combine(ScheduledBookingsPath, id + ".csv"));
-        if (File.Exists(f))
+        if (File.Exists(f) || endDate.HasValue && bookingMap[id].DueDate > endDate)
         {
           bookingMap.Remove(id);
         }
@@ -175,7 +182,7 @@ namespace BlackMaple.CSVOrders
       return bookingMap;
     }
 
-    private IEnumerable<ScheduledPartWithoutBooking> LoadScheduledParts()
+    public IEnumerable<ScheduledPartWithoutBooking> LoadScheduledParts()
     {
       var schFile = Path.Combine(CSVBasePath, "scheduled-parts.csv");
 
@@ -197,36 +204,13 @@ namespace BlackMaple.CSVOrders
       }
     }
 
-    private long? LoadLatestBackoutId()
+    public long? LoadLatestBackoutId()
     {
       string f = Path.Combine(CSVBasePath, "latest-backout-id");
       if (File.Exists(f))
         return long.Parse(File.ReadAllText(f));
       else
         return null;
-    }
-
-    public UnscheduledStatus LoadUnscheduledStatus(int lookheadDays)
-    {
-      IEnumerable<Booking> bookings;
-      if (lookheadDays > 0)
-      {
-        var endDate = DateTime.Today.AddDays(lookheadDays);
-        bookings = LoadUnscheduledBookings()
-                .Values
-                .Where(x => x.DueDate <= endDate);
-      }
-      else
-      {
-        bookings = LoadUnscheduledBookings().Values;
-      }
-      return new UnscheduledStatus
-      {
-        UnscheduledBookings = bookings,
-        ScheduledParts = LoadScheduledParts(),
-        LatestBackoutId = LoadLatestBackoutId(),
-        Castings = new List<Casting>(),
-      };
     }
 
     private void WriteScheduledParts(string file, IEnumerable<ScheduledPartWithoutBooking> parts)
@@ -307,11 +291,11 @@ namespace BlackMaple.CSVOrders
       File.Move(schTempFile, schFile);
     }
 
-    public void HandleBackedOutWork(long backoutId, IEnumerable<BackedOutPart> backedOutParts)
+    public void HandleBackedOutWork(Backout backout)
     {
       var file = Path.Combine(CSVBasePath, "bookings.csv");
 
-      File.WriteAllText(Path.Combine(CSVBasePath, "latest-backout-id"), backoutId.ToString());
+      File.WriteAllText(Path.Combine(CSVBasePath, "latest-backout-id"), backout.BackoutId.ToString());
 
       var orders = new List<UnscheduledCsvRow>();
 
@@ -324,7 +308,7 @@ namespace BlackMaple.CSVOrders
         }
       }
 
-      foreach (var p in backedOutParts)
+      foreach (var p in backout.Parts)
       {
         orders.Add(new UnscheduledCsvRow()
         {

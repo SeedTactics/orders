@@ -1,4 +1,4 @@
-/* Copyright (c) 2017, John Lenz
+/* Copyright (c) 2020, John Lenz
 
 All rights reserved.
 
@@ -110,9 +110,7 @@ namespace tests
         .ShouldAllBeEquivalentTo(initialWorkorders);
       workDB.LoadUnfilledWorkorders(10)
         .ShouldAllBeEquivalentTo(new[] { initialWorkorders[0] });
-      workDB.LoadUnfilledWorkorders("part3")
-        .ShouldAllBeEquivalentTo(new[] { initialWorkorders[2] });
-      workDB.LoadUnfilledWorkorders(-1)
+      workDB.LoadUnfilledWorkorders(null)
         .ShouldAllBeEquivalentTo(initialWorkorders);
     }
 
@@ -120,8 +118,11 @@ namespace tests
     public void FillWorkorder()
     {
       var workDB = new BlackMaple.CSVOrders.WorkorderCSV();
-      workDB.MarkWorkorderAsFilled("work1", new DateTime(2016, 11, 05, 3, 44, 52, DateTimeKind.Utc),
-        new WorkorderResources
+      workDB.MarkWorkorderAsFilled(new FilledWorkorder()
+      {
+        WorkorderId = "work1",
+        FillUTC = new DateTime(2016, 11, 05, 3, 44, 52, DateTimeKind.Utc),
+        Resources = new WorkorderResources
         {
           Serials = new List<string> { "serial1", "serial2" },
           Parts = new List<WorkorderPartResources>
@@ -159,12 +160,11 @@ namespace tests
                         }
                       }
           }
-        });
+        }
+      });
 
       workDB.LoadUnfilledWorkorders(50)
         .ShouldAllBeEquivalentTo(initialWorkorders.GetRange(1, 2));
-      workDB.LoadUnfilledWorkorders("part3")
-        .ShouldAllBeEquivalentTo(new Workorder[] { initialWorkorders[2] });
 
       var lines = File.ReadAllLines("filled-workorders/work1.csv");
       Assert.Equal(3, lines.Count());

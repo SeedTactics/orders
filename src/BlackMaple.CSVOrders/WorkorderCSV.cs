@@ -1,4 +1,4 @@
-/* Copyright (c) 2017, John Lenz
+/* Copyright (c) 2020, John Lenz
 
 All rights reserved.
 
@@ -42,7 +42,7 @@ namespace BlackMaple.CSVOrders
   ///<summary>
   ///  Implement management of orders via CSV files for simpler integration into ERP systems
   ///</summary>
-  public class WorkorderCSV : IWorkorderDatabase
+  public class WorkorderCSV
   {
     private string _csvBase = null;
     public string CSVBasePath
@@ -152,11 +152,11 @@ namespace BlackMaple.CSVOrders
       return workorderMap;
     }
 
-    public IEnumerable<Workorder> LoadUnfilledWorkorders(int lookaheadDays)
+    public IEnumerable<Workorder> LoadUnfilledWorkorders(int? lookaheadDays)
     {
-      if (lookaheadDays > 0)
+      if (lookaheadDays.HasValue && lookaheadDays.Value > 0)
       {
-        var endDate = DateTime.Today.AddDays(lookaheadDays);
+        var endDate = DateTime.Today.AddDays(lookaheadDays.Value);
         return LoadUnfilledWorkordersMap()
             .Values
             .Where(x => x.DueDate <= endDate);
@@ -167,23 +167,14 @@ namespace BlackMaple.CSVOrders
       }
     }
 
-    public IEnumerable<Workorder> LoadUnfilledWorkorders(string part)
-    {
-      return LoadUnfilledWorkordersMap()
-          .Values
-          .Where(w => w.Parts.Any(p => p.Part == part));
-    }
-
-    public void MarkWorkorderAsFilled(string workorderId,
-                                      DateTime filledUTC,
-                                      WorkorderResources resources)
+    public void MarkWorkorderAsFilled(FilledWorkorder filled)
     {
       if (!Directory.Exists(Path.Combine(CSVBasePath, FilledWorkordersPath)))
       {
         Directory.CreateDirectory(Path.Combine(CSVBasePath, FilledWorkordersPath));
       }
 
-      using (var f = File.OpenWrite(Path.Combine(CSVBasePath, Path.Combine(FilledWorkordersPath, workorderId + ".csv"))))
+      using (var f = File.OpenWrite(Path.Combine(CSVBasePath, Path.Combine(FilledWorkordersPath, filled.WorkorderId + ".csv"))))
       using (var stream = new StreamWriter(f))
       using (var csv = new CsvHelper.CsvWriter(stream))
       {
@@ -195,7 +186,7 @@ namespace BlackMaple.CSVOrders
 
         var activeStations = new HashSet<string>();
         var elapsedStations = new HashSet<string>();
-        foreach (var p in resources.Parts)
+        foreach (var p in filled.Resources.Parts)
         {
           foreach (var k in p.ActiveOperationTime.Keys)
             activeStations.Add(k);
@@ -215,13 +206,13 @@ namespace BlackMaple.CSVOrders
         }
         csv.NextRecord();
 
-        foreach (var p in resources.Parts)
+        foreach (var p in filled.Resources.Parts)
         {
-          csv.WriteField(filledUTC.ToString("yyyy-MM-ddTHH:mm:ssZ"));
-          csv.WriteField(workorderId);
+          csv.WriteField(filled.FillUTC.ToString("yyyy-MM-ddTHH:mm:ssZ"));
+          csv.WriteField(filled.WorkorderId);
           csv.WriteField(p.Part);
           csv.WriteField(p.PartsCompleted);
-          csv.WriteField(string.Join(";", resources.Serials));
+          csv.WriteField(string.Join(";", filled.Resources.Serials));
 
           foreach (var k in actualKeys)
           {
