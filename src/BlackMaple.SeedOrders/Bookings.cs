@@ -47,9 +47,9 @@ namespace BlackMaple.SeedOrders
     public int ProcessNumber { get; set; }
 
     /// <summary>Identifies which machine stop on the part that this program is for (only needed if a process has multiple
-    /// machining stops before unload).</summary>
+    /// machining stops before unload).  The stop numbers are zero-indexed.</summary>
     [DataMember]
-    public string MachineGroup { get; set; }
+    public int? StopIndex { get; set; }
 
     /// <summary>The program name, used to find the program contents.</summary>
     [DataMember]
