@@ -35,7 +35,7 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <PackageReference Include="BlackMaple.SeedOrders" Version="6.*"/>
+        <PackageReference Include="BlackMaple.SeedOrders" Version="6.1.*"/>
       </ItemGroup>
     </Otherwise>
   </Choose>
