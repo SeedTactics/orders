@@ -191,8 +191,14 @@ namespace BlackMaple.SeedOrders
     public long? Revision { get; set; }
     [DataMember]
     public string Comment { get; set; }
-    [DataMember]
-    public string ProgramContent { get; set; }
+
+    // Can set either ProgramContentPath or ProgramContent (but only one of the two should be set)
+
+    [DataMember(IsRequired = false)]
+    public string ProgramContentPath { get; set; } // full path to the file containing the program content
+
+    [DataMember(IsRequired = false)]
+    public string ProgramContent { get; set; } // the program content as a string
   }
 
   /// <summary>
