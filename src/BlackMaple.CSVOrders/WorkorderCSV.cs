@@ -36,6 +36,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using BlackMaple.SeedOrders;
+using System.Globalization;
 
 namespace BlackMaple.CSVOrders
 {
@@ -75,7 +76,7 @@ namespace BlackMaple.CSVOrders
     {
       using (var f = File.OpenWrite(file))
       using (var s = new StreamWriter(f))
-      using (var csv = new CsvHelper.CsvWriter(s))
+      using (var csv = new CsvHelper.CsvWriter(s, CultureInfo.InvariantCulture))
       {
         csv.Configuration.TypeConverterOptionsCache.GetOptions<DateTime>().Formats
                 = new string[] { "yyyy-MM-dd" };
@@ -111,7 +112,7 @@ namespace BlackMaple.CSVOrders
       }
 
       using (var f = File.OpenRead(path))
-      using (var csv = new CsvHelper.CsvReader(new StreamReader(f)))
+      using (var csv = new CsvHelper.CsvReader(new StreamReader(f), CultureInfo.InvariantCulture))
       {
 
         foreach (var row in csv.GetRecords<UnscheduledCsvRow>())
@@ -176,7 +177,7 @@ namespace BlackMaple.CSVOrders
 
       using (var f = File.OpenWrite(Path.Combine(CSVBasePath, Path.Combine(FilledWorkordersPath, filled.WorkorderId + ".csv"))))
       using (var stream = new StreamWriter(f))
-      using (var csv = new CsvHelper.CsvWriter(stream))
+      using (var csv = new CsvHelper.CsvWriter(stream, CultureInfo.InvariantCulture))
       {
         csv.WriteField("CompletedTimeUTC");
         csv.WriteField("ID");

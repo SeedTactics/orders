@@ -84,7 +84,7 @@ namespace BlackMaple.CSVOrders
     {
       using (var f = File.OpenWrite(file))
       using (var s = new StreamWriter(f))
-      using (var csv = new CsvHelper.CsvWriter(s))
+      using (var csv = new CsvHelper.CsvWriter(s, CultureInfo.InvariantCulture))
       {
         csv.Configuration.TypeConverterOptionsCache.GetOptions<DateTime>().Formats
                 = new string[] { "yyyy-MM-dd" };
@@ -121,7 +121,7 @@ namespace BlackMaple.CSVOrders
 
       using (var f = File.OpenRead(pth))
       using (var sreader = new StreamReader(f))
-      using (var csv = new CsvHelper.CsvReader(sreader))
+      using (var csv = new CsvHelper.CsvReader(sreader, CultureInfo.InvariantCulture))
       {
 
         var orderCntr = 0;
@@ -198,7 +198,7 @@ namespace BlackMaple.CSVOrders
       if (!File.Exists(schFile)) return new ScheduledPartWithoutBooking[] { };
 
       using (var f = File.OpenRead(schFile))
-      using (var csv = new CsvHelper.CsvReader(new StreamReader(f)))
+      using (var csv = new CsvHelper.CsvReader(new StreamReader(f), CultureInfo.InvariantCulture))
       {
         return csv.GetRecords<ScheduledPartWithoutBooking>().ToArray();
       }
@@ -218,7 +218,7 @@ namespace BlackMaple.CSVOrders
       using (var f = File.Open(file, FileMode.Create))
       {
         using (var s = new StreamWriter(f))
-        using (var csv = new CsvHelper.CsvWriter(s))
+        using (var csv = new CsvHelper.CsvWriter(s, CultureInfo.InvariantCulture))
         {
           csv.WriteRecords(parts);
           s.Flush();
@@ -236,7 +236,7 @@ namespace BlackMaple.CSVOrders
       {
         using (var f = File.Open(Path.Combine(CSVBasePath, Path.Combine(ScheduledBookingsPath, bookingId + ".csv")), FileMode.Create))
         using (var stream = new StreamWriter(f))
-        using (var csv = new CsvHelper.CsvWriter(stream))
+        using (var csv = new CsvHelper.CsvWriter(stream, CultureInfo.InvariantCulture))
         {
           csv.Configuration.TypeConverterOptionsCache.GetOptions<DateTime>().Formats
               = new string[] { "yyyy-MM-ddTHH:mm:ssZ" };
@@ -302,7 +302,7 @@ namespace BlackMaple.CSVOrders
       if (File.Exists(file))
       {
         using (var f = File.OpenRead(file))
-        using (var csv = new CsvHelper.CsvReader(new StreamReader(f)))
+        using (var csv = new CsvHelper.CsvReader(new StreamReader(f), CultureInfo.InvariantCulture))
         {
           orders.AddRange(csv.GetRecords<UnscheduledCsvRow>());
         }
@@ -321,7 +321,7 @@ namespace BlackMaple.CSVOrders
       }
 
       using (var s = new StreamWriter(file))
-      using (var csv = new CsvHelper.CsvWriter(s))
+      using (var csv = new CsvHelper.CsvWriter(s, CultureInfo.InvariantCulture))
       {
         csv.Configuration.TypeConverterOptionsCache.GetOptions<DateTime>().Formats
                 = new string[] { "yyyy-MM-dd" };
