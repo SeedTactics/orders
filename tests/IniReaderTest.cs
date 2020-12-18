@@ -59,7 +59,7 @@ namespace BlackMaple.SeedOrders.Tests
       using (var m = new System.IO.MemoryStream(System.Text.Encoding.UTF8.GetBytes(s)))
       {
         var config = IniReader.Parse(m);
-        config.ShouldBeEquivalentTo(new Dictionary<(string section, string key), string>() {
+        config.Should().BeEquivalentTo(new Dictionary<(string section, string key), string>() {
           { ("Section1", "Key1"), "Value1"},
           { ("Section1", "Key2"), "Value2  "},
           { ("Section 2", "Key3"), "Value3"}

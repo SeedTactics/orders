@@ -61,6 +61,7 @@ namespace BlackMaple.CSVOrders
       }
     }
     public string ScheduledBookingsPath { get; set; } = "scheduled-bookings";
+    public string ProgramDirectory { get; set; } = "programs";
     public Func<DateTime> GetUtcNow { get; set; } = () => DateTime.UtcNow;
 
     private class UnscheduledCsvRow
@@ -180,6 +181,28 @@ namespace BlackMaple.CSVOrders
       }
 
       return bookingMap;
+    }
+
+    public List<ProgramEntry> LoadPrograms()
+    {
+      if (!Directory.Exists(Path.Combine(CSVBasePath, ProgramDirectory)))
+      {
+        return new List<ProgramEntry>();
+      }
+
+      var ret = new List<ProgramEntry>();
+      foreach (var file in Directory.GetFiles(Path.Combine(CSVBasePath, ProgramDirectory), "*.EIA"))
+      {
+        ret.Add(new ProgramEntry()
+        {
+          ProgramName = Path.GetFileNameWithoutExtension(file),
+          Revision = -1,
+          Comment = "",
+          ProgramContentPath = file
+        });
+      }
+
+      return ret;
     }
 
     public IEnumerable<ScheduledPartWithoutBooking> LoadScheduledParts()

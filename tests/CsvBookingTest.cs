@@ -143,15 +143,15 @@ namespace tests
     public void LoadUnscheduledStatus()
     {
       var booking = new BlackMaple.CSVOrders.CSVBookings();
-      booking.LoadScheduledParts().ShouldAllBeEquivalentTo(initialSchParts);
-      booking.LoadUnscheduledBookings(50).Values.ShouldAllBeEquivalentTo(initialBookings);
+      booking.LoadScheduledParts().Should().BeEquivalentTo(initialSchParts);
+      booking.LoadUnscheduledBookings(50).Values.Should().BeEquivalentTo(initialBookings);
       Assert.Null(booking.LoadLatestBackoutId());
 
-      booking.LoadUnscheduledBookings(10).Values.ShouldAllBeEquivalentTo(
+      booking.LoadUnscheduledBookings(10).Values.Should().BeEquivalentTo(
           new[] { initialBookings[0] }
       );
 
-      booking.LoadUnscheduledBookings(null).Values.ShouldAllBeEquivalentTo(initialBookings);
+      booking.LoadUnscheduledBookings(null).Values.Should().BeEquivalentTo(initialBookings);
     }
 
     [Fact]
@@ -183,8 +183,8 @@ namespace tests
           });
 
       //check status
-      booking.LoadScheduledParts().ShouldAllBeEquivalentTo(schParts);
-      booking.LoadUnscheduledBookings(50).Values.ShouldAllBeEquivalentTo(
+      booking.LoadScheduledParts().Should().BeEquivalentTo(schParts);
+      booking.LoadUnscheduledBookings(50).Values.Should().BeEquivalentTo(
           new Booking[] { initialBookings[2] }
       );
       Assert.Null(booking.LoadLatestBackoutId());
@@ -192,12 +192,12 @@ namespace tests
       var sch1 = File.ReadAllLines("scheduled-bookings/booking1.csv");
       var sch2 = File.ReadAllLines("scheduled-bookings/booking2.csv");
 
-      sch1.ShouldAllBeEquivalentTo(new string[] {
+      sch1.Should().BeEquivalentTo(new string[] {
                 "ScheduledTimeUTC,Part,Quantity,ScheduleId",
                 "2016-11-05T00:00:00Z,part1,44,12345",
                 "2016-11-05T00:00:00Z,part2,66,12345"
             });
-      sch2.ShouldAllBeEquivalentTo(new string[] {
+      sch2.Should().BeEquivalentTo(new string[] {
                 "ScheduledTimeUTC,Part,Quantity,ScheduleId",
                 "2016-11-05T00:00:00Z,part1,55,12345",
                 "2016-11-05T00:00:00Z,part2,77,12345"
@@ -214,11 +214,11 @@ namespace tests
             });
 
       var booking = new BlackMaple.CSVOrders.CSVBookings();
-      booking.LoadScheduledParts().ShouldAllBeEquivalentTo(new ScheduledPartWithoutBooking[] {
+      booking.LoadScheduledParts().Should().BeEquivalentTo(new ScheduledPartWithoutBooking[] {
                 new ScheduledPartWithoutBooking { Part = "mypart", Quantity = 12},
                 new ScheduledPartWithoutBooking { Part = "otherpart", Quantity = 17}
             });
-      booking.LoadUnscheduledBookings(null).Values.ShouldAllBeEquivalentTo(initialBookings);
+      booking.LoadUnscheduledBookings(null).Values.Should().BeEquivalentTo(initialBookings);
       Assert.Null(booking.LoadLatestBackoutId());
     }
 
@@ -275,8 +275,8 @@ namespace tests
                 }
       });
 
-      booking.LoadScheduledParts().ShouldAllBeEquivalentTo(initialSchParts);
-      booking.LoadUnscheduledBookings(null).Values.ShouldAllBeEquivalentTo(initialBookings);
+      booking.LoadScheduledParts().Should().BeEquivalentTo(initialSchParts);
+      booking.LoadUnscheduledBookings(null).Values.Should().BeEquivalentTo(initialBookings);
       Assert.Equal(667788, booking.LoadLatestBackoutId());
     }
 
@@ -348,12 +348,35 @@ namespace tests
       var booking = new BlackMaple.CSVOrders.CSVBookings();
       booking.GetUtcNow = () => now;
 
-      booking.LoadScheduledParts().ShouldAllBeEquivalentTo(initialSchParts);
-      booking.LoadUnscheduledBookings(null).Values.ShouldAllBeEquivalentTo(initialBookings);
+      booking.LoadScheduledParts().Should().BeEquivalentTo(initialSchParts);
+      booking.LoadUnscheduledBookings(null).Values.Should().BeEquivalentTo(initialBookings);
       Assert.Null(booking.LoadLatestBackoutId());
 
     }
 
+    [Fact]
+    public void LoadsPrograms()
+    {
+      Directory.CreateDirectory("programs");
+      File.WriteAllText(Path.Combine("programs", "prog1.EIA"), "prog1 content");
+      File.WriteAllText(Path.Combine("programs", "prog2.EIA"), "prog2 content");
+
+      var booking = new BlackMaple.CSVOrders.CSVBookings();
+      booking.LoadPrograms().Should().BeEquivalentTo(new[] {
+        new ProgramEntry() {
+          ProgramName = "prog1",
+          Revision = -1,
+          Comment = "",
+          ProgramContentPath = Path.Combine(Environment.CurrentDirectory, "programs", "prog1.EIA")
+        },
+        new ProgramEntry() {
+          ProgramName = "prog2",
+          Revision = -1,
+          Comment = "",
+          ProgramContentPath = Path.Combine(Environment.CurrentDirectory, "programs", "prog2.EIA")
+        }
+      });
+    }
   }
 
   public class CsvCreateBookingTest
@@ -372,7 +395,7 @@ namespace tests
 
       var b = File.ReadAllLines(bookFile);
 
-      b.ShouldAllBeEquivalentTo(new string[] {
+      b.Should().BeEquivalentTo(new string[] {
         "Id,DueDate,Priority,Part,Quantity",
         "12345," + DateTime.Today.AddDays(10).ToString("yyyy-MM-dd") + ",100,part1,50",
         "98765," + DateTime.Today.AddDays(12).ToString("yyyy-MM-dd") + ",100,part2,77"

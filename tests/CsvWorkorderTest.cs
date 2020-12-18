@@ -107,11 +107,11 @@ namespace tests
     {
       var workDB = new BlackMaple.CSVOrders.WorkorderCSV();
       workDB.LoadUnfilledWorkorders(30)
-        .ShouldAllBeEquivalentTo(initialWorkorders);
+        .Should().BeEquivalentTo(initialWorkorders);
       workDB.LoadUnfilledWorkorders(10)
-        .ShouldAllBeEquivalentTo(new[] { initialWorkorders[0] });
+        .Should().BeEquivalentTo(new[] { initialWorkorders[0] });
       workDB.LoadUnfilledWorkorders(null)
-        .ShouldAllBeEquivalentTo(initialWorkorders);
+        .Should().BeEquivalentTo(initialWorkorders);
     }
 
     [Fact]
@@ -164,7 +164,7 @@ namespace tests
       });
 
       workDB.LoadUnfilledWorkorders(50)
-        .ShouldAllBeEquivalentTo(initialWorkorders.GetRange(1, 2));
+        .Should().BeEquivalentTo(initialWorkorders.GetRange(1, 2));
 
       var lines = File.ReadAllLines("filled-workorders/work1.csv");
       Assert.Equal(3, lines.Count());
@@ -189,7 +189,7 @@ namespace tests
 
       var b = File.ReadAllLines(workFile);
 
-      b.ShouldAllBeEquivalentTo(new string[] {
+      b.Should().BeEquivalentTo(new string[] {
         "Id,DueDate,Priority,Part,Quantity",
         "12345," + DateTime.Today.AddDays(10).ToString("yyyy-MM-dd") + ",100,part1,50",
         "98765," + DateTime.Today.AddDays(12).ToString("yyyy-MM-dd") + ",100,part2,77"
