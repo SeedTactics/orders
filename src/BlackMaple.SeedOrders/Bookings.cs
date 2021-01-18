@@ -74,7 +74,7 @@ namespace BlackMaple.SeedOrders
     public int Quantity { get; set; }
 
     ///<summary>The programs to run. If not given, the programs are assumed to be defined in the
-    /// flexibility plan and already loaded in the machine.</summary>
+    /// workorders or flexibility plan and already loaded in the machine.</summary>
     [DataMember(IsRequired = false, EmitDefaultValue = false)]
     public IEnumerable<MainProgram> Programs { get; set; }
   }
@@ -114,19 +114,6 @@ namespace BlackMaple.SeedOrders
     ///<summary>The parts to produce for this booking</summary>
     [DataMember]
     public List<BookingDemand> Parts { get; set; }
-  }
-
-  /// <summary>
-  ///  Represents a raw material/casting type with its available material.
-  /// </summary>
-  [DataContract]
-  public class Casting
-  {
-    [DataMember]
-    public string CastingId { get; set; }
-
-    [DataMember]
-    public int Quantity { get; set; }
   }
 
   /// <summary>

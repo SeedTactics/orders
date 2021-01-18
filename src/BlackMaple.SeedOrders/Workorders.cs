@@ -49,6 +49,11 @@ namespace BlackMaple.SeedOrders
 
     [DataMember]
     public int Quantity { get; set; }
+
+    ///<summary>The programs to run. If not given, the programs are assumed to be defined in the
+    /// bookings or flexibility plan.</summary>
+    [DataMember(IsRequired = false, EmitDefaultValue = false)]
+    public IEnumerable<MainProgram> Programs { get; set; }
   }
 
   /// <summary>
