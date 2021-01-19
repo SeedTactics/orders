@@ -55,7 +55,7 @@ namespace BlackMaple.SeedOrders
     public LoadOrders LoadAll { get; set; }
 
     ///<summary>
-    ///  Load just the unfilled workorders.  A JSON-formatted LoadOrderResponse is written to standard output.
+    ///  Load just the unfilled workorders and programs.  A JSON-formatted LoadOrderResponse is written to standard output.
     ///</summary>
     public LoadOrders LoadWorkordersOnly { get; set; }
 
@@ -72,7 +72,7 @@ namespace BlackMaple.SeedOrders
     public NewSchedule CreateSchedule { get; set; }
 
     /// <summary>
-    ///  Backout scheduled but not yet produced parts.null  No response on standard output.
+    ///  Backout scheduled but not yet produced parts. No response on standard output.
     /// </summary>
     /// <remarks>
     ///  <para>
@@ -165,12 +165,17 @@ namespace BlackMaple.SeedOrders
     ///</summary>
     ///<remarks>
     /// <para>
-    ///   Programs which appear in BookingDemands which are not in this list are assumed
+    ///   Programs which appear in BookingDemands or WorkorderDemands which are not in this list are assumed
     ///   to already exist in the cell controller.  If programs are managed entirely in the
     ///   cell controller, this list can be empty or null.
     /// </para>
     ///</remarks>
     public IEnumerable<ProgramEntry> Programs { get; set; }
+
+    ///<summary>
+    ///If true, the plugin supports marking a workorder as filled.
+    ///</summary>
+    public bool? AllowWorkorderFilling { get; set; }
   }
 
 }
