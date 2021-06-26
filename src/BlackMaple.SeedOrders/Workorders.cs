@@ -31,29 +31,28 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+// Disable warning for no default value, use C#10 required properties once released
+#pragma warning disable CS8618
+#nullable enable
+
 using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
+
 
 namespace BlackMaple.SeedOrders
 {
   /// <summary>A <c>WorkorderDemand</c> is an order for a single part and quantity and is held inside a <c>Workorder</c>.</summary>
-  [DataContract]
   public class WorkorderDemand
   {
-    [DataMember]
     public string WorkorderId { get; set; }
 
-    [DataMember]
     public string Part { get; set; }
 
-    [DataMember]
     public int Quantity { get; set; }
 
     ///<summary>The programs to run. If not given, the programs are assumed to be defined in the
     /// bookings or flexibility plan.</summary>
-    [DataMember(IsRequired = false, EmitDefaultValue = false)]
-    public IEnumerable<MainProgram> Programs { get; set; }
+    public IEnumerable<MainProgram>? Programs { get; set; }
   }
 
   /// <summary>
@@ -72,19 +71,15 @@ namespace BlackMaple.SeedOrders
   ///     change.  Unfilled workorders can be edited at any time.
   ///   </para>
   /// </remarks>
-  [DataContract]
   public class Workorder
   {
     ///<summary>The unique id for this workorder</summary>
-    [DataMember]
     public string WorkorderId { get; set; }
 
     /// <summary>The due date is used as the primary means to determine which workorder to fill first.</summary>
-    [DataMember]
     public DateTime DueDate { get; set; }
 
     /// <summary>Workorders with the same due date are sorted by priority (larger integers are higher priority).</summary>
-    [DataMember]
     public int Priority { get; set; }
 
     /// <summary>The time in coordinated universal time (UTC) when the final part was assigned to this workorder</summary>
@@ -94,24 +89,18 @@ namespace BlackMaple.SeedOrders
     ///    parts should be assigned to it again.
     ///  </para>
     /// </remarks>
-    [DataMember]
     public DateTime? FilledUTC { get; set; }
 
     ///<summary>The parts required to fill this workorder</summary>
-    [DataMember]
     public List<WorkorderDemand> Parts { get; set; }
   }
 
   /// <summary>
   /// The resources used by a single part in a filled workorder
   /// </summary>
-  [DataContract]
   public class WorkorderPartResources
   {
-    [DataMember]
     public string Part { get; set; }
-
-    [DataMember]
     public int PartsCompleted { get; set; }
 
     /// <summary>The elapsed wall clock time used by the parts in this workorder at each station</summary>
@@ -122,7 +111,6 @@ namespace BlackMaple.SeedOrders
     ///   to cycle end, so includes time that the station is idle (for example, if the program is interrupted).
     ///   </para>
     /// </remarks>
-    [DataMember]
     public Dictionary<string, TimeSpan> ElapsedOperationTime { get; set; }
 
     /// <summary>The active time used by the parts in this workorder at each station</summary>
@@ -134,22 +122,18 @@ namespace BlackMaple.SeedOrders
     ///   if for example the program is interrupted or some other interruption occurs.
     ///   </para>
     /// </remarks>
-    [DataMember]
     public Dictionary<string, TimeSpan> ActiveOperationTime { get; set; }
   }
 
   /// <summary>
   ///   A <c>WorkorderResources</c> summarizes the execution of the parts assigned to the workorder.
   /// </summary>
-  [DataContract]
   public class WorkorderResources
   {
     ///<summary>The serials of all parts assigned to this workorder</summary>
-    [DataMember]
-    public List<string> Serials { get; set; }
+    public List<string>? Serials { get; set; }
 
     ///<summary>The completed counts and operation times for parts assigned to this workorder</summary>
-    [DataMember]
     public List<WorkorderPartResources> Parts { get; set; }
   }
 

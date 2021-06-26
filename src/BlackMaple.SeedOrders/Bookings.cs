@@ -31,52 +31,45 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+// Disable warning for no default value, use C#10 required properties once released
+#pragma warning disable CS8618
+#nullable enable
+
 using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 
 namespace BlackMaple.SeedOrders
 {
 
   /// <summary>A <c>MainProgram</c> contains the program information used to cut a single process on one machine.</summary>
-  [DataContract]
   public class MainProgram
   {
     /// <summary>Identifies the process on the part that this program is for.</summary>
-    [DataMember]
     public int ProcessNumber { get; set; }
 
     /// <summary>Identifies which machine stop on the part that this program is for (only needed if a process has multiple
     /// machining stops before unload).  The stop numbers are zero-indexed.</summary>
-    [DataMember]
     public int? StopIndex { get; set; }
 
     /// <summary>The program name, used to find the program contents.</summary>
-    [DataMember]
     public string ProgramName { get; set; }
 
     ///<summary>The program revision to run.  If zero or not specified, the most recent program revision is used.</summary>
-    [DataMember(IsRequired = false, EmitDefaultValue = false)]
     public long? Revision { get; set; }
   }
 
   /// <summary>A <c>BookingDemand</c> is an order for a single part and quantity and is held inside a <c>Booking</c>.</summary>
-  [DataContract]
   public class BookingDemand
   {
-    [DataMember]
     public string BookingId { get; set; }
 
-    [DataMember]
     public string Part { get; set; }
 
-    [DataMember]
     public int Quantity { get; set; }
 
     ///<summary>The programs to run. If not given, the programs are assumed to be defined in the
     /// workorders or flexibility plan and already loaded in the machine.</summary>
-    [DataMember(IsRequired = false, EmitDefaultValue = false)]
-    public IEnumerable<MainProgram> Programs { get; set; }
+    public IEnumerable<MainProgram>? Programs { get; set; }
   }
 
   /// <summary>A <c>Booking</c> is an order used for scheduling.</summary>
@@ -92,27 +85,21 @@ namespace BlackMaple.SeedOrders
   ///     part quantities change on the order, where the workorder is updated but a new booking with the change in demand in created.
   ///   </para>
   /// </remarks>
-  [DataContract]
   public class Booking
   {
     /// <summary>The unique identifier for a booking</summary>
-    [DataMember]
     public string BookingId { get; set; }
 
     /// <summary>The due date is used as the primary means to determine which booking to produce first.</summary>
-    [DataMember]
     public DateTime DueDate { get; set; }
 
     /// <summary>Bookings with the same due date are sorted by priority (larger integers are higher priority).</summary>
-    [DataMember]
     public int Priority { get; set; }
 
     ///<summary>The schedule id if this booking has been scheduled.  If the booking has not yet been scheduled, this is null</summary>
-    [DataMember]
-    public string ScheduleId { get; set; }
+    public string? ScheduleId { get; set; }
 
     ///<summary>The parts to produce for this booking</summary>
-    [DataMember]
     public List<BookingDemand> Parts { get; set; }
   }
 
@@ -128,16 +115,10 @@ namespace BlackMaple.SeedOrders
   ///     to the machine controller.
   ///   </para>
   /// </remarks>
-  [DataContract]
   public class DownloadedPart
   {
-    [DataMember]
     public string ScheduleId { get; set; }
-
-    [DataMember]
     public string Part { get; set; }
-
-    [DataMember]
     public int Quantity { get; set; }
   }
 
@@ -159,68 +140,40 @@ namespace BlackMaple.SeedOrders
   ///   so when writing the interface between OrderLink and your ERP system, you just need to store and retrieve this data.
   ///   </para>
   /// </remarks>
-  [DataContract]
   public class ScheduledPartWithoutBooking
   {
-    [DataMember]
     public string Part { get; set; }
-
-    [DataMember]
     public int Quantity { get; set; }
   }
 
-  [DataContract]
   public class ProgramEntry
   {
-    [DataMember]
     public string ProgramName { get; set; }
-    [DataMember]
     public long? Revision { get; set; }
-    [DataMember]
-    public string Comment { get; set; }
+    public string? Comment { get; set; }
 
     // Can set either ProgramContentPath or ProgramContent (but only one of the two should be set)
-
-    [DataMember(IsRequired = false)]
-    public string ProgramContentPath { get; set; } // full path to the file containing the program content
-
-    [DataMember(IsRequired = false)]
-    public string ProgramContent { get; set; } // the program content as a string
+    public string? ProgramContentPath { get; set; } // full path to the file containing the program content
+    public string? ProgramContent { get; set; } // the program content as a string
   }
 
   /// <summary>
   ///   The data passed in when creating a new schedule
   /// </summary>
-  [DataContract]
   public class NewSchedule
   {
-    [DataMember]
     public string ScheduleId { get; set; }
-
-    [DataMember]
     public DateTime ScheduledTimeUTC { get; set; }
-
-    [DataMember]
     public TimeSpan ScheduledHorizon { get; set; }
-
-    [DataMember]
     public List<string> BookingIds { get; set; }
-
-    [DataMember]
     public List<DownloadedPart> DownloadedParts { get; set; }
-
-    [DataMember]
     public List<ScheduledPartWithoutBooking> ScheduledParts { get; set; }
   }
 
   /// <summary>Records a part and quantity that was removed from the cell controller</summary>
-  [DataContract]
   public class BackedOutPart
   {
-    [DataMember]
     public string Part { get; set; }
-
-    [DataMember]
     public int Quantity { get; set; }
   }
 

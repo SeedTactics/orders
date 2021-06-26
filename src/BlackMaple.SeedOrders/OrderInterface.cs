@@ -31,6 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+// Disable warning for no default value, use C#10 required properties once released
+#pragma warning disable CS8618
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 
@@ -52,12 +56,12 @@ namespace BlackMaple.SeedOrders
     ///  Load bookings, workorders, backouts, castings, programs, etc.  A JSON-formatted LoadOrderResponse is
     ///  written to standard output.
     ///</summary>
-    public LoadOrders LoadAll { get; set; }
+    public LoadOrders? LoadAll { get; set; }
 
     ///<summary>
     ///  Load just the unfilled workorders and programs.  A JSON-formatted LoadOrderResponse is written to standard output.
     ///</summary>
-    public LoadOrders LoadWorkordersOnly { get; set; }
+    public LoadOrders? LoadWorkordersOnly { get; set; }
 
     ///<summary>
     ///  Mark the given bookings as scheduled and replace scheduled parts with the following parts.
@@ -69,7 +73,7 @@ namespace BlackMaple.SeedOrders
     ///    should be stored.
     ///  </para>
     ///</remarks>
-    public NewSchedule CreateSchedule { get; set; }
+    public NewSchedule? CreateSchedule { get; set; }
 
     /// <summary>
     ///  Backout scheduled but not yet produced parts. No response on standard output.
@@ -124,12 +128,12 @@ namespace BlackMaple.SeedOrders
     ///    backed out parts, and returned as part of the <c>UnscheduledStatus</c>.
     ///  </para>
     /// </remarks>
-    public Backout BackoutWork { get; set; }
+    public Backout? BackoutWork { get; set; }
 
     ///<summary>
     ///  Mark a workorder as filled.  No response on standard output.
     ///</summary>
-    public FilledWorkorder MarkWorkorderFilled { get; set; }
+    public FilledWorkorder? MarkWorkorderFilled { get; set; }
   }
 
   public class LoadOrderResponse
@@ -147,7 +151,7 @@ namespace BlackMaple.SeedOrders
     /// <summary>
     ///   All unfilled workorders in the system.
     /// </summary>
-    public IEnumerable<Workorder> UnfilledWorkorders { get; set; }
+    public IEnumerable<Workorder>? UnfilledWorkorders { get; set; }
 
     ///<summary>
     ///  The latest backout id, which is used to prevent a backout from being recorded multiple times
@@ -170,7 +174,7 @@ namespace BlackMaple.SeedOrders
     ///   cell controller, this list can be empty or null.
     /// </para>
     ///</remarks>
-    public IEnumerable<ProgramEntry> Programs { get; set; }
+    public IEnumerable<ProgramEntry>? Programs { get; set; }
 
     ///<summary>
     ///If true, the plugin supports marking a workorder as filled.

@@ -5,6 +5,7 @@
     <AssemblyName>BlackMaple.SeedOrders</AssemblyName>
     <OutputType>Library</OutputType>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>8.0</LangVersion>
 
     <Title>SeedTactics Order API</Title>
     <Company>Black Maple Software, LLC</Company>
